@@ -20,3 +20,4 @@ linreg.fit[Xtrain;Ytrain]
 pred:linreg.predict[Xtest]
 pymetrics:wrapm .p.import`sklearn.metrics
 .p.py2q pym.mean_squared_error[Ytest;pred]
+
