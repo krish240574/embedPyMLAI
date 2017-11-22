@@ -14,7 +14,7 @@ qdiab:.p.py2q ds.load_diabetes[] / load diabetes dataset
 
 / split into train and test
 Xtrain:(qdiab`data)[til 300];
-Xtest:(qdiab`data)[300+til((count qdiab`data)-300]
+Xtest:(qdiab`data)[300+til((count qdiab`data)-300)]
 Ytrain:(qdiab`target)[til 300]
 Ytest:(qdiab`target)[300+til((count qdiab`target)-300)]
 / fit here
