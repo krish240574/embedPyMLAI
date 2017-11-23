@@ -25,6 +25,38 @@ wrapm:{[x]
 / Ideally, I'd like to avoid writing the slightest bit of python - would be nice to have a means 
 / to reach an *object* inside a python module, after an import.
 / Something akin to .p.impobj[`sklearn;`linear_model;`LinearRegression] - import an object directly into q
+/ the following code makes some headway - 
+/ isroutine:.p.imp[`inspect;`isclass] / note the 'isclass' here 
+/ getmembers:.p.callable_imp[`inspect;`getmembers]
+/ objs:getmembers[.p.import`sklearn.linear_model;isroutine]
+/ 'objs' now contains the following :
+/ q)objs
+"ARDRegression"         foreign
+"BayesianRidge"         foreign
+"ElasticNet"            foreign
+"ElasticNetCV"          foreign
+"Hinge"                 foreign
+"Huber"                 foreign
+"HuberRegressor"        foreign
+"Lars"                  foreign
+"LarsCV"                foreign
+"Lasso"                 foreign
+"LassoCV"               foreign
+"LassoLars"             foreign
+"LassoLarsCV"           foreign
+"LassoLarsIC"           foreign
+"LinearRegression"      foreign
+"Log"                   foreign
+"LogisticRegression"    foreign
+"LogisticRegressionCV"  foreign
+"ModifiedHuber"         foreign
+"MultiTaskElasticNet"   foreign
+"MultiTaskElasticNetCV" foreign
+"MultiTaskLasso"        foreign
+...
+/ these are however, class names, I think, I'm still trying to figure out how to instantiate
+/ an object of these, through 'objs'
+
 
 / the following lines are an indirect way to reach the desired python object inside
 / a python module. - LinearRegression inside linear_model inside sklearn. 
