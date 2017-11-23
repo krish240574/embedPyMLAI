@@ -21,9 +21,10 @@ wrapm:{[x]
         res,:(`$names[;0])!{.p.pycallable y 1}[x]each names; res} / end function wrapm
 
 
-/ Now to Import linear_model from sklearn. Ideally, I'd like to avoid writing the slightest 
-/ bit of python - would be nice to have a means to reach an *object* inside a python module, after an import.
-/ Something akin to .p.impobj[`sklearn;linear_model;`LinearRegression] - import an object directly into q
+/ Now to import the LinearRegression object from inside linear_model from inside sklearn. 
+/ Ideally, I'd like to avoid writing the slightest bit of python - would be nice to have a means 
+/ to reach an *object* inside a python module, after an import.
+/ Something akin to .p.impobj[`sklearn;`linear_model;`LinearRegression] - import an object directly into q
 
 / the following lines are an indirect way to reach the desired python object inside
 / a python module. - LinearRegression inside linear_model inside sklearn. 
