@@ -31,30 +31,30 @@ wrapm:{[x]
 / objs:getmembers[.p.import`sklearn.linear_model;isroutine]
 / 'objs' now contains the following :
 / q)objs
-"ARDRegression"         foreign
-"BayesianRidge"         foreign
-"ElasticNet"            foreign
-"ElasticNetCV"          foreign
-"Hinge"                 foreign
-"Huber"                 foreign
-"HuberRegressor"        foreign
-"Lars"                  foreign
-"LarsCV"                foreign
-"Lasso"                 foreign
-"LassoCV"               foreign
-"LassoLars"             foreign
-"LassoLarsCV"           foreign
-"LassoLarsIC"           foreign
-"LinearRegression"      foreign
-"Log"                   foreign
-"LogisticRegression"    foreign
-"LogisticRegressionCV"  foreign
-"ModifiedHuber"         foreign
-"MultiTaskElasticNet"   foreign
-"MultiTaskElasticNetCV" foreign
-"MultiTaskLasso"        foreign
-...
-/ these are however, class names, I think, I'm still trying to figure out how to instantiate
+/ "ARDRegression"         foreign
+/ "BayesianRidge"         foreign
+/ "ElasticNet"            foreign
+/ "ElasticNetCV"          foreign
+/ "Hinge"                 foreign
+/ "Huber"                 foreign
+/ "HuberRegressor"        foreign
+/ "Lars"                  foreign
+/ "LarsCV"                foreign
+/ "Lasso"                 foreign
+/ "LassoCV"               foreign
+/ "LassoLars"             foreign
+/ "LassoLarsCV"           foreign
+/ "LassoLarsIC"           foreign
+/ "LinearRegression"      foreign
+/ "Log"                   foreign
+/ "LogisticRegression"    foreign
+/ "LogisticRegressionCV"  foreign
+/ "ModifiedHuber"         foreign
+/ "MultiTaskElasticNet"   foreign
+/ "MultiTaskElasticNetCV" foreign
+/ "MultiTaskLasso"        foreign
+/ ...
+/ these are however, class names, I think. I'm still trying to figure out how to instantiate
 / an object of these, through 'objs'
 
 
