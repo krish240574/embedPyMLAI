@@ -2,35 +2,41 @@
 / this is an embedPy translate to highlight the succinctness of the integration between python and q - clean as a whistle !
 
 / load up embedPy
-\l p.q 
+\l p.q
 
 / import if a routine i.e only function call names
-isroutine:.p.imp[`inspect;`isroutine]; 
+isroutine:.p.imp[`inspect;`isroutine];
 
 / get pointers to all functions as callable_imps
-getmembers:.p.callable_imp[`inspect;`getmembers]; 
+getmembers:.p.callable_imp[`inspect;`getmembers];
 
-/ this function takes all function names in a module and 
+/ this function takes all function names in a module and
 / returns a dictionary containing pointers to them as callable_imps
 wrapm:{[x]
         / call getmembers defined above, on the import of your choice
-        names:getmembers[x;isroutine]; 
+        names:getmembers[x;isroutine];
         / initialise dict with :: and _pyobj, necessary in every pydict object
         res:``_pyobj!((::);x);
         / update and return results as a dictionary of function names for later use
         res,:(`$names[;0])!{.p.pycallable y 1}[x]each names; res} / end function wrapm
-        
-/ use wrapm for sklearn's linear_model
-pylinmodel:wrapm .p.import`sklearn.linear_model 
+
+
+/ Now to Import linear_model from sklearn. Ideally, I'd like to avoid writing the slightest 
+/ bit of python - would be nice to have a means to reach an *object* inside a python module, after an import.
+/ Something akin to .p.impobj[`sklearn;linear_model;`LinearRegression] - import an object directly into q
+
+/ the following lines are an indirect way to reach the desired python object inside
+/ a python module. - LinearRegression inside linear_model inside sklearn. 
+p)from sklearn import linear_model
 
 / get the LinearRegression object from sklearn
-linreg:.p.obj2dict .p.pyeval"linear_model.LinearRegression()" 
+linreg:.p.obj2dict .p.pyeval"linear_model.LinearRegression()"
 
 / use wrapm for sklearn's dataset function names
-ds:wrapm .p.import`sklearn.datasets 
+ds:wrapm .p.import`sklearn.datasets
 
 / load diabetes dataset
-qdiab:.p.py2q ds.load_diabetes[] 
+qdiab:.p.py2q ds.load_diabetes[]
 
 / split into train and test
 Xtrain:(qdiab`data)[til 300];
@@ -47,6 +53,6 @@ pred:linreg.predict[Xtest]
 / use wrapm for skpearn's metrics module function names
 pymetrics:wrapm .p.import`sklearn.metrics
 
-/ print results (mse here) 
-.p.py2q pym.mean_squared_error[Ytest;pred]
+/ print results (mse here)
+.p.py2q pymetrics.mean_squared_error[Ytest;pred]
 
