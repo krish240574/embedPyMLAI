@@ -1,0 +1,8 @@
+1. Build time error - make test - reports the following - 
+"RuntimeError: Invalid DISPLAY variable". 
+This can be fixed by adding the following 2 lines to tests/matplotlib.t
+p)import matplotlib
+p)matplotlib.use('agg')
+
+
+
