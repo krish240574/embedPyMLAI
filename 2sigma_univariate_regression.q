@@ -11,7 +11,7 @@ getmembers:.p.callable_imp[`inspect;`getmembers];
 p)import kagglegym / export PYTHONPATH=$QHOME/l64(where the kagglegym.py is)
 p)env = kagglegym.make()
 p)obs = env.reset()
-p)train = obs.train()
+p)train = obs.train() / train is a pandas dataframe
 / Need to transpose train, so that inside q, when values[] is called, all columns are maintained
 p)train = train.transpose()
 / enter q now
