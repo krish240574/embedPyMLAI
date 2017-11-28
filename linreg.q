@@ -57,6 +57,11 @@ wrapm:{[x]
 / these are however, class names, I think. I'm still trying to figure out how to instantiate
 / an object of these, through 'objs'
 
+/ Update - simple workaround 
+/ p)from sklearn import linear_model
+/ p)reg = linear_model.LinearRegression()
+/ linreg:.p.get`reg
+
 
 / the following lines are an indirect way to reach the desired python object inside
 / a python module. - LinearRegression inside linear_model inside sklearn. 
