@@ -16,7 +16,13 @@ p)train = obs.train() / train is a pandas dataframe
 p)train = train.transpose()
 / enter q now
 train:.p.obj2dict .p.get[`train]; / convert to dict, so one can reach the values[] call
-train:flip .p.py2q train.values[] / this gets the shape intact 806928x111
+train:.p.py2q train.values[] / this gets the shape intact 806928x111
+
+/ Column names 
+p)cols = train.columns()
+kcols:.p.obj2dict .p.get[`cols]
+kcols:`$ .p.py2q kcols.tolist[]
+train:kcols!train
 
 
 train:fills each train
