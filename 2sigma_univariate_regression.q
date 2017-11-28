@@ -2,12 +2,25 @@
 isroutine:.p.imp[`inspect;`isroutine];
 getmembers:.p.callable_imp[`inspect;`getmembers];
 
-c:`id`timestamp`derived0`derived1`derived2`derived3`derived4`fundamental0`fundamental1`fundamental2`fundamental3`fundamental5`fundamental6`fundamental7`fundamental8`fundamental9`fundamental10`fundamental11`fundamental12`fundamental13`fundamental14`fundamental15`fundamental16`fundamental17`fundamental18`fundamental19`fundamental20`fundamental21`fundamental22`fundamental23`fundamental24`fundamental25`fundamental26`fundamental27`fundamental28`fundamental29`fundamental30`fundamental31`fundamental32`fundamental33`fundamental34`fundamental35`fundamental36`fundamental37`fundamental38`fundamental39`fundamental40`fundamental41`fundamental42`fundamental43`fundamental44`fundamental45`fundamental46`fundamental47`fundamental48`fundamental49`fundamental50`fundamental51`fundamental52`fundamental53`fundamental54`fundamental55`fundamental56`fundamental57`fundamental58`fundamental59`fundamental60`fundamental61`fundamental62`fundamental63`technical0`technical1`technical2`technical3`technical5`technical6`technical7`technical9`technical10`technical11`technical12`technical13`technical14`technical16`technical17`technical18`technical19`technical20`technical21`technical22`technical24`technical25`technical27`technical28`technical29`technical30`technical31`technical32`technical33`technical34`technical35`technical36`technical37`technical38`technical39`technical40`technical41`technical42`technical43`technical44`y
-colStr:"II",109#"F"
-.Q.fs[{`tr insert flip c!(colStr;",")0:x}]`:train.csv;
-show "reading done..."
-tr:fills each tr
-k:tr[(cols tr) where not (cols tr) in (`id`timestamp`y)]
+/ c:`id`timestamp`derived0`derived1`derived2`derived3`derived4`fundamental0`fundamental1`fundamental2`fundamental3`fundamental5`fundamental6`fundamental7`fundamental8`fundamental9`fundamental10`fundamental11`fundamental12`fundamental13`fundamental14`fundamental15`fundamental16`fundamental17`fundamental18`fundamental19`fundamental20`fundamental21`fundamental22`fundamental23`fundamental24`fundamental25`fundamental26`fundamental27`fundamental28`fundamental29`fundamental30`fundamental31`fundamental32`fundamental33`fundamental34`fundamental35`fundamental36`fundamental37`fundamental38`fundamental39`fundamental40`fundamental41`fundamental42`fundamental43`fundamental44`fundamental45`fundamental46`fundamental47`fundamental48`fundamental49`fundamental50`fundamental51`fundamental52`fundamental53`fundamental54`fundamental55`fundamental56`fundamental57`fundamental58`fundamental59`fundamental60`fundamental61`fundamental62`fundamental63`technical0`technical1`technical2`technical3`technical5`technical6`technical7`technical9`technical10`technical11`technical12`technical13`technical14`technical16`technical17`technical18`technical19`technical20`technical21`technical22`technical24`technical25`technical27`technical28`technical29`technical30`technical31`technical32`technical33`technical34`technical35`technical36`technical37`technical38`technical39`technical40`technical41`technical42`technical43`technical44`y
+/ colStr:"II",109#"F"
+/ .Q.fs[{`tr insert flip c!(colStr;",")0:x}]`:train.csv;
+/ show "reading done..."
+/ reading as CSV causes a wsfull error, here is a workaround
+
+p)import kagglegym / export PYTHONPATH=$QHOME/l64(where the kagglegym.py is)
+p)env = kagglegym.make()
+p)obs = env.reset()
+p)train = obs.train()
+/ Need to transpose train, so that inside q, when values[] is called, all columns are maintained
+p)train = train.transpose()
+/ enter q now
+train:.p.obj2dict .p.get[`train]; / convert to dict, so one can reach the values[] call
+train:flip .p.py2q train.values[] / this gets the shape intact 806928x111
+
+
+train:fills each train
+k:train[(cols train) where not (cols train) in (`id`timestamp`y)]
 wrapm:{[x]
         / call getmembers defined above, on the import of your choice
         names:getmembers[x;isroutine];
@@ -17,7 +30,7 @@ wrapm:{[x]
         res,:(`$names[;0])!{.p.pycallable y 1}[x]each names; res} / end function wrapm
 
 np:wrapm .p.import`numpy
-coeff:{tr[`y] cor k[x]}each til count k
+coeff:{train[`y] cor k[x]}each til count k
 ind:.p.py2q np.arange[count k]
 width:0.9
 p)import matplotlib.pyplot as plt
