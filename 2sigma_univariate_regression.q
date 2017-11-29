@@ -51,3 +51,16 @@ ax.set_yticks[ind+(width%2)]
 ax.set_yticklabels[tkcols iasc coeff;`rotation pykw `horizontal] / index column names by ascending order of corr
 plt:wrapm .p.get[`plt]
 plt.show[]
+
+/ Now to take the top 4 variables, corr-wise and plot a heatmap
+p)temp = obs.train
+/ top 4 variables, with highest correlation
+p)temp_df = temp[['technical_30','fundamental_51','technical_37','technical_25']]
+p)corrmat = temp_df.corr(method='spearman')
+corrmat:.p.obj2dict .p.get[`corrmat]
+corrmat:.p.py2q corrmat.values[]
+p)f,ax = plt.subplots(figsize=(8,8))
+sns:wrapm .p.import`seaborn
+sns.heatmap[corrmat;`vmax pykw 0.8;`square pykw `True]
+plt.show[]
+
