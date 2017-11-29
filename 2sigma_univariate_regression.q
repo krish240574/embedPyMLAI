@@ -8,10 +8,12 @@ getmembers:.p.callable_imp[`inspect;`getmembers];
 / show "reading done..."
 / reading as CSV causes a wsfull error, here is a workaround
 
-p)import kagglegym / export PYTHONPATH=$QHOME/l64(where the kagglegym.py is)
+/ export PYTHONPATH=$QHOME/l64(where the kagglegym.py is)
+p)import kagglegym 
 p)env = kagglegym.make()
 p)obs = env.reset()
-p)train = obs.train() / train is a pandas dataframe
+/ train is a pandas dataframe
+p)train = obs.train() 
 / Need to transpose train, so that inside q, when values[] is called, all columns are maintained
 p)train = train.transpose()
 / enter q now
