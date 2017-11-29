@@ -26,7 +26,7 @@ train:.p.obj2dict .p.get[`train]; / convert to dict, so one can reach the values
 train:.p.py2q train.values[] / this gets the shape intact 806928x111
 
 / Create train dataset table here
-train:kcols!train
+train:flip kcols!train
 
 
 train:fills each train
