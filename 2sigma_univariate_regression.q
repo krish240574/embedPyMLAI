@@ -30,7 +30,7 @@ train:flip kcols!train
 
 
 train:fills each train
-k:train[(cols train) where not (cols train) in (`id`timestamp`y)]
+k:train[kcols where not kcols in (`id`timestamp`y)]
 wrapm:{[x]
         / call getmembers defined above, on the import of your choice
         names:getmembers[x;isroutine];
