@@ -39,10 +39,10 @@ wrapm:{[x]
         / update and return results as a dictionary of function names for later use
         res,:(`$names[;0])!{.p.pycallable y 1}[x]each names; res} / end function wrapm
 
-np:wrapm .p.import`numpy
-coeff:{train[`y] cor k[x]}each til count k
-ind:.p.py2q np.arange[count k]
-width:0.9
+np:wrapm .p.import`numpy;
+coeff:k cor \: train[`y];
+ind:.p.py2q np.arange[count k];
+width:0.9;
 p)import matplotlib.pyplot as plt
 p)fig,ax = plt.subplots(figsize = (12,40))
 ax:.p.obj2dict .p.get`ax
