@@ -13,7 +13,7 @@ p)import kagglegym
 p)env = kagglegym.make()
 p)obs = env.reset()
 / train is a pandas dataframe
-p)train = obs.train() 
+p)train = obs.train 
 / Need to transpose train, so that inside q, when values[] is called, all columns are maintained
 p)train = train.transpose()
 / enter q now
