@@ -46,3 +46,7 @@ width:0.9
 p)import matplotlib.pyplot as plt
 p)fig,ax = plt.subplots(figsize = (12,40))
 ax:.p.obj2dict .p.get`ax
+ax.set_yticks[ind+(width%2)]
+ax.set_yticklabels[kcols;`rotation pykw `horizontal]
+plt:wrapm .p.get[`plt]
+plt.show[]
