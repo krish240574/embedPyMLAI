@@ -46,8 +46,8 @@ width:0.9;
 p)import matplotlib.pyplot as plt
 p)fig,ax = plt.subplots(figsize = (12,40))
 ax:.p.obj2dict .p.get`ax
-ax.barh[ind;coeff;`color pykw `y]  / this contains the meat for the plot
+ax.barh[ind;asc coeff;`color pykw `y]  / this contains the meat for the plot - in ascending order of corrs
 ax.set_yticks[ind+(width%2)]
-ax.set_yticklabels[tkcols;`rotation pykw `horizontal]
+ax.set_yticklabels[tkcols iasc coeff;`rotation pykw `horizontal] / index column names by ascending order of corr
 plt:wrapm .p.get[`plt]
 plt.show[]
