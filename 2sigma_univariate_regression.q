@@ -14,16 +14,18 @@ p)env = kagglegym.make()
 p)obs = env.reset()
 / train is a pandas dataframe
 p)train = obs.train 
+/ Column names
+p)kcols = train.columns
+kcols:.p.obj2dict .p.get[`kcols]
+kcols:`$.p.py2q kcols.tolist[]
+
 / Need to transpose train, so that inside q, when values[] is called, all columns are maintained
 p)train = train.transpose()
 / enter q now
 train:.p.obj2dict .p.get[`train]; / convert to dict, so one can reach the values[] call
 train:.p.py2q train.values[] / this gets the shape intact 806928x111
 
-/ Column names 
-p)cols = train.columns
-kcols:.p.obj2dict .p.get[`cols]
-kcols:`$ .p.py2q kcols.tolist[]
+/ Create train dataset table here
 train:kcols!train
 
 
