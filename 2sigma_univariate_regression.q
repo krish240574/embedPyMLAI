@@ -58,7 +58,7 @@ sns[`heatmap;<;corrmat;`vmax pykw 0.8;`square pykw `True]
 pshow[]
 
 
-/ ****** NOT tested yet 
+/ ****** NOT tested yet  - November 30, 2017
 / Fit a linear regression model using all four top columns
 p)from sklearn import linear_model
 lm:.p.eval"linear_model.LinearRegression()"
