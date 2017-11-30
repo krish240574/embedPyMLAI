@@ -56,3 +56,28 @@ p)f,ax = plt.subplots(figsize=(8,8))
 sns:.p.import`seaborn
 sns[`heatmap;<;corrmat;`vmax pykw 0.8;`square pykw `True]
 pshow[]
+
+
+/ ****** NOT tested yet 
+/ Fit a linear regression model using all four top columns
+p)from sklearn import linear_model
+lm:.p.eval"linear_model.LinearRegression()"
+fit:.p.qcallable lm`fit
+fit[flip train[`technical_30`fundamental_51`technical_37`technical_25];train[`y]]
+np:.p.import`numpy
+array:.p.qcallable np`array
+while [i;-1;
+obs = .p.get`obs;
+tgt:.p.get obs`target
+testx:array[obs[`technical_30`fundamental_51`technical_37`technical_25]];
+predict:.p.qcallable lm`predict
+tgt[:;`y;predict[testx]]
+obs[:;`target;tgt];
+.p.set[`obs;obs] /just to be sure
+p)target = obs.target
+p)obs, reward, done, info = env.step(target)
+done:.p.get `done;
+if[done`=`True;i=0];
+]
+
+
