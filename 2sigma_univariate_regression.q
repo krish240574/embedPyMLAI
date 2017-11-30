@@ -50,7 +50,7 @@ pshow[]
 / Now to take the top 4 variables, corr-wise and plot a heatmap
 p)temp = obs.train
 p)temp_df = temp[['technical_30','fundamental_51','technical_37','technical_25']]
-p)corrmat = (temp_df.corr(method='spearman')).values
+p)corrmat = (temp_df.corr(method='spearman'))
 corrmat:.p.get`corrmat
 p)f,ax = plt.subplots(figsize=(8,8))
 sns:.p.import`seaborn
