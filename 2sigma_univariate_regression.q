@@ -60,8 +60,8 @@ fit:.p.qcallable lm`fit
 fit[(flip k)[til((count train)-1000)];(train[`y])(til((count train)-1000))]
 
 / Create test set here - last 1000 rows
-testx:(train[((neg 1000) + count train)+til 1000])[]
-testy:(train[((neg 1000) + count train)+til 1000])[`y]
+testx:(train[((neg 1000) + count train)+til 1000])[`technical_30`fundamental_51`technical_37`technical_25];
+testy:(train[((neg 1000) + count train)+til 1000])[`y];
 / predict using test set here
 predict:.p.qcallable lm`predict
 preds:predict flip testx;
