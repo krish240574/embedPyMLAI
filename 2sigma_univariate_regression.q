@@ -51,26 +51,21 @@ sns:.p.import`seaborn
 sns[`heatmap;<;corrmat;`vmax pykw 0.8;`square pykw `True]
 pshow[]
 
-
-/ Fit a linear regression model using all four top columns
+/ Pick only top 4 for training linear model
+k:train[`technical_30`fundamental_51`technical_37`technical_25];
 p)from sklearn import linear_model
 lm:.p.eval"linear_model.LinearRegression()"
 fit:.p.qcallable lm`fit
 / leave out 1000 rows for test
 fit[(flip k)[til((count train)-1000)];(train[`y])(til((count train)-1000))]
-np:.p.import`numpy
-array:.p.qcallable np`array
-i:-1;
-p)import numpy as np
-p)testfeatures = np.array(obs.features[['technical_30','fundamental_51','technical_37','technical_25']])
 
 / Create test set here - last 1000 rows
-testx:(train[((neg 1000) + count train)+til 1000])[tkcols]
+testx:(train[((neg 1000) + count train)+til 1000])[]
 testy:(train[((neg 1000) + count train)+til 1000])[`y]
 / predict using test set here
 predict:.p.qcallable lm`predict
-preds:predict flip  testx;
-show preds:
+preds:predict flip testx;
+show preds;
 
 / show mse here
 metrics:.p.import `sklearn.metrics
