@@ -36,5 +36,16 @@ allslices:v,'allslices
 allslices:`v3 xasc allslices
 
 / Now we have all slices for 1 patient, sorted by ImagePatientPosition[2]
+/ Each row contains one slice, and the `slicecol35 column contains the scanned image for that slice. 
+/ Like so:
+/q)allslices[0]`slicecol35 
+/ 2145386512
+/ "OW"
+/ 524288 - size of image
+/ "0\3700\3700\3700\3700\3700\3700\3700\3700\3700\3700\3700\3700\3700\3700\3700..
+/ 1154
+/ 0b
+/ 1b
+
 
 
