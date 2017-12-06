@@ -26,7 +26,7 @@ allslices:{value slices[x]}each til count slices
 / -145.5 -158.2 -343.7
 / -145.5 -158.2 -163.7
 / -145.5 -158.2 -298.7
-v:(`$"v",/:string (1+til 3)) ! flip {"E"$ "\\" vs allslices[x][15;3]}each til count slices
+v:flip (`$"v",/:string (1+til 3)) ! flip {"E"$ "\\" vs allslices[x][15;3]}each til count slices
 
 / Prepare allslices, wth column names
 allslices:flip (`$"slicecol",/:string (1+til 35)) ! flip allslices
