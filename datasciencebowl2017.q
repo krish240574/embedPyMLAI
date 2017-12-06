@@ -33,7 +33,7 @@ allslices:flip (`$"slicecol",/:string (1+til 35)) ! flip allslices
 
 / Add the ImagePatientPosition values here and sort
 allslices:v,'allslices
-allslices:`v3 xasc allslices
+allslices:`v3 xdesc allslices
 
 / Now we have all slices for 1 patient, sorted by ImagePatientPosition[2]
 / Each row contains one slice, and the `slicecol35 column contains the scanned image for that slice. 
