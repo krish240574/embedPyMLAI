@@ -28,7 +28,7 @@ plt[`show;<][]
 numslices:20;
 chunksize:ceiling((count imgs)%numslices);
 taken:(20*til chunksize) _ imgs  
-/ fill up the last list to complete
+/ fill up the last list to chunksize
 tmp:last taken
 l: ((-1+chunksize)#) over tmp
 taken[-1+count taken]:tmp,l
