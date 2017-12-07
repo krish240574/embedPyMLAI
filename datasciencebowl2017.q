@@ -22,7 +22,17 @@ imgs:(.p.get`imgs)`;
 q)plt:.p.import `matplotlib.pyplot
 plt[`imshow;<;imgs[0]]
 plt[`show;<][]
-              
+ 
+/ Split the list of images into chunks of 20 each
+/ Take them separately, in order to average and resize
+numslices:20;
+chunksize:ceiling((count imgs)%numslices);
+taken:(20*til chunksize) _ imgs  
+/ fill up the last list to complete
+tmp:last taken
+l: ((-1+chunksize)#) over tmp
+taken[-1+count taken]:tmp,l
+
 
 
 
