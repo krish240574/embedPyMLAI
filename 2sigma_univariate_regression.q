@@ -37,7 +37,7 @@ syt:.p.qcallable ax`set_yticks
 syt[ind+width%2]
 setylabels:.p.qcallable ax`set_yticklabels
 setylabels[tkcols iasc coeff;`rotation pykw `horizontal]
-plt:.p.get`plt
+plt:.p.get`plt 
 pshow:.p.qcallable plt`show
 pshow[]
 
