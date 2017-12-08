@@ -23,14 +23,14 @@ q)plt:.p.import `matplotlib.pyplot
 plt[`imshow;<;imgs[0]]
 plt[`show;<][]
  
-/ Split the list of images into chunks of 20 each
-/ Take them separately, in order to average and resize
-numslices:20;
-chunksize:ceiling((count imgs)%numslices);
+/ Split the list of images/slices into chunks of 20 each
+/ then collapse each to average of those 20
+numineachchunk:20; / number of slices in each chunk
+chunksize:ceiling((count imgs)%numineachchunk);
 taken:(20*til chunksize) _ imgs  
 / fill up the last list to chunksize
 tmp:last taken
-l: ((-1+chunksize)#) over tmp
+l: ((numineachchunk-count tmp)#) over tmp
 taken[-1+count taken]:tmp,l
 / Now to average color values in each chunk, across images in it
 newvals:avg each raze each ''taken;
