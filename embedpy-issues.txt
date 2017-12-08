@@ -1,8 +1,44 @@
-1. Build time error - make test - reports the following - 
-"RuntimeError: Invalid DISPLAY variable". 
-This can be fixed by adding the following 2 lines to tests/matplotlib.t
-p)import matplotlib
-p)matplotlib.use('agg')
+08th Dec, 2017
+==============
+What I'm currently trying to do is read a DICOM(medical scan) image, accessible using the pydicom package. 
+The following code does that:
+q)dicom:.p.import dicom
+q)f:dicom[`read_file;<;<filename>]
+Upon running the above code, f gets returned as an object of type <99h> - a dictionary inside q, okay so far.
+However, all data inside the object returned in the read_file([] above, is damaged inside q, and I get a dictionary with strange keys and values. 
 
+As a workaround, I have to run  the following code:
+p)f = dicom.read_file(<filename>)
+q)qf:.p.get`f
+q)pa:(qf`pixel_array)`
+
+pa then contains the correct numerical data in the pixel_array attribute, without corruption(although the other contents of the object are garbled as before). 
+
+The read_file() method returns a FileDataset object(which is derived from the python dict)
+p)print(type(f))
+<class 'dicom.dataset.FileDataset'>
+Is there some type casting that I need to do, in order to access the FileDataset object from inside python? Or is q changing values while shifting between the py and q universes?
+
+I am looking hard, to check if there are issues with other objects too, so far, the other object I have used is the LinearRegression object 
+p)from sklearn import linear_model
+p)reg = linear_model.LinearRegression()
+reg:.p.get `reg
+q)reg
+{[c;r;x;a]embedPy[c;r;x;a]}[0;0;foreign]enlist
+q)reg`
+foreign
+q)reg`.
+foreign
+q)reg[`fit]
+{[c;r;x;a]embedPy[c;r;x;a]}[0;0;foreign]enlist
+
+q)p)print(type(reg))
+<class 'sklearn.linear_model.base.LinearRegression'>
+
+q)type reg
+105h
+reg inside q is of type 105h - a composition. 
+
+This seems to work ok, all is fine here, unlike the earlier case above. 
 
 
