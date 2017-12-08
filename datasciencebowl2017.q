@@ -32,6 +32,10 @@ taken:(20*til chunksize) _ imgs
 tmp:last taken
 l: ((-1+chunksize)#) over tmp
 taken[-1+count taken]:tmp,l
+/ Now to average color values in each chunk, across images in it
+newvals:avg each raze each ''taken;
+/Equivalent code - {(imgsize imgsize)#avg raze each taken[x]}each til count taken
+
 
 
 
