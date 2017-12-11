@@ -42,14 +42,14 @@ l: (((first count each taken)-count tmp)#) over tmp
 taken[-1+count taken]:tmp,l
 / Now to average color values in each chunk, across images in it
 newvals:avg each raze each ''taken;
-/Equivalent code - {(imgsize imgsize)#avg raze each taken[x]}each til count taken
+/ Equivalent code - {(imgsize imgsize)#avg raze each taken[x]}each til count taken
 / Can't one instantiate an object directly - plt`figure?
+/ Display as a grid of rescaled, gray-scale images - sexy !
 p)import matplotlib.pyplot as plt
 p)fig = plt.figure()
 fig:.p.get`fig
 asp:.p.qcallable fig`add_subplot;
-k:{t:.p.wrap asp[4;5;x+1];(.p.qcallable t`imshow)[newvals 0;`cmap pykw `gray]}each til count newvals
+k:{t:.p.wrap fig[`add_subplot;4;5;x+1];t[`imshow;<;newvals 0;`cmap pykw `gray]}each til count newvals
 
 plt:.p.import `matplotlib.pyplot
-shw:.p.qcallable plt`show
-shw[]
+shw:plt[`show;<][]
