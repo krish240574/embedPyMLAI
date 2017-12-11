@@ -18,6 +18,15 @@ q)p)import numpy as np
 p)imgs = [(slices[i].pixel_array) for i in np.arange(len(slices))]
 / Enter the quniverse here
 imgs:(.p.get`imgs)`;
+/ resize, 512x512 is too large
+/ Workaround for tuple - .p.q2py enlist 150 150 fails in the resize call,
+/ .p.i `tuple fails too
+p)t = tuple([150,150])
+tup:.p.get`t
+np:.p.import`numpy
+cv:.p.import`cv2
+imgs:{cv[`resize;<;np[`array;>;imgs[x]]; tup`. ]}each til count imgs
+
 / Plot image here, only one for now. (512X512 image)
 q)plt:.p.import `matplotlib.pyplot
 plt[`imshow;<;imgs[0]]
