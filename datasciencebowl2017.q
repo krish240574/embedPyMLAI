@@ -20,6 +20,7 @@ p)imgs = [(slices[i].pixel_array) for i in np.arange(len(slices))]
 imgs:(.p.get`imgs)`;
 / resize, 512x512 is too large
 / Workaround for tuple - .p.q2py enlist 150 150 fails in the resize call,
+/ .p.i `tuple fails too
 p)t = tuple([150,150])
 tup:.p.get`t
 np:.p.import`numpy
@@ -36,9 +37,19 @@ numslices:20; / number of slices
 chunksize:ceiling((count imgs)%numslices);
 taken:(chunksize*til numslices) _ imgs
 / fill up the last list to chunksize
-tmp:last taken
+tmp:last taken;
 l: (((first count each taken)-count tmp)#) over tmp
 taken[-1+count taken]:tmp,l
 / Now to average color values in each chunk, across images in it
 newvals:avg each raze each ''taken;
 /Equivalent code - {(imgsize imgsize)#avg raze each taken[x]}each til count taken
+/ Can't one instantiate an object directly - plt`figure?
+p)import matplotlib.pyplot as plt
+p)fig = plt.figure()
+fig:.p.get`fig
+asp:.p.qcallable fig`add_subplot;
+k:{t:.p.wrap asp[4;5;x+1];(.p.qcallable t`imshow)[newvals 0;`cmap pykw `gray]}each til count newvals
+
+plt:.p.import `matplotlib.pyplot
+shw:.p.qcallable plt`show
+shw[]
