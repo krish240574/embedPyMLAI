@@ -46,10 +46,8 @@ newvals:avg each raze each ''taken;
 / Can't one instantiate an object directly - plt`figure?
 / Display as a grid of rescaled, gray-scale images - sexy !
 p)import matplotlib.pyplot as plt
-p)fig = plt.figure()
-fig:.p.get`fig
-asp:.p.qcallable fig`add_subplot;
-k:{t:.p.wrap fig[`add_subplot;4;5;x+1];t[`imshow;<;newvals 0;`cmap pykw `gray]}each til count newvals
+fig:.p.eval"plt.figure()"
+k:{t:(.p.wrap fig[`add_subplot;<;4;5;x+1])[`imshow;<;newvals x;`cmap pykw `gray]}each til count newvals
 
 plt:.p.import `matplotlib.pyplot
 shw:plt[`show;<][]
