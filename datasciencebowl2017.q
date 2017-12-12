@@ -36,7 +36,7 @@ imgs:{cv[`resize;<;np[`array;>;imgs[x]]; tup`. ]}each til count imgs
 numslices:20; / number of slices
 chunksize:ceiling((count imgs)%numslices);
 taken:(chunksize*til numslices) _ imgs
-/ fill up the last list to chunksize
+/ fill up the last list to chunksize 
 tmp:last taken;
 l: (((first count each taken)-count tmp)#) over tmp
 taken[-1+count taken]:tmp,l
