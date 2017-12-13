@@ -9,6 +9,7 @@ p)import numpy as np
 p)import dicom
 p)import matplotlib.pyplot as plt
 pd:{
+        show x;
         .p.set[`x;x];
         .p.set[`inp;"./input/sample_images/"];
         / read images from disk, (each directory contains multiple images, or slices)
@@ -21,10 +22,10 @@ pd:{
         / 512x512 is too large - resize to 150,150
         imgs::{np:.p.import`numpy;cv:.p.import`cv2;tup:.p.eval"tuple([150,150])";cv[`resize;<;np[`array;>;imgs[x]];tup`.]}each til count imgs;
         / Now to chunk each directory of images into blocks of ((count imgs)%20)
-        / then average each block into one image each. 
+        / then average each block into one image each.
         numslices:20;
         chunksize:ceiling((count imgs)%numslices);
-        taken:(chunksize*til numslices) _ imgs;
+        taken:(t where (count imgs)>t:chunksize*til numslices) _ imgs;
         tmp:last taken;
         l: (((first count each taken)-count tmp)#) over tmp;
         taken[-1+count taken]:tmp,l;
@@ -35,5 +36,6 @@ pd:{
         k[];
         plt:.p.import `matplotlib.pyplot;
         plt[`show;<][]}
-        
-        
+lst:system "ls .input/sample_images"
+fin:{pd[x,"/"]}each lst
+
