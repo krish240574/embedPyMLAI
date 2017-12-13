@@ -36,6 +36,6 @@ pd:{
         k[];
         plt:.p.import `matplotlib.pyplot;
         plt[`show;<][]}
-lst:system "ls .input/sample_images"
+lst:system "ls ./input/sample_images"
 fin:{pd[x,"/"]}each lst
 
