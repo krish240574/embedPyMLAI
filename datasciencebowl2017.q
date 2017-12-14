@@ -8,8 +8,12 @@ p)import os
 p)import numpy as np
 p)import dicom
 p)import matplotlib.pyplot as plt
+imgs:()
+fig:()
+rsz:{np:.p.import`numpy;cv:.p.import`cv2;tup:.p.eval"tuple([150,150])";show imgs[0];cv[`resize;<;np[`array;>;x;tup`.]]}
 pd:{
         show x;
+        ret:0;
         .p.set[`x;x];
         .p.set[`inp;"./input/sample_images/"];
         / read images from disk, (each directory contains multiple images, or slices)
@@ -17,10 +21,13 @@ pd:{
         / Sort(in-place) by image position
         .p.eval"slices.sort(key = lambda x: int(x.ImagePositionPatient[2]))";
         / Get image pixel data
-        imgs::.p.eval"[(slices[i].pixel_array) for i in np.arange(len(slices))]";
-        imgs::imgs`;
+        tmp:.p.eval"[(slices[i].pixel_array) for i in np.arange(len(slices))]";
+        imgs::tmp`;
+
         / 512x512 is too large - resize to 150,150
-        imgs::{np:.p.import`numpy;cv:.p.import`cv2;tup:.p.eval"tuple([150,150])";cv[`resize;<;np[`array;>;imgs[x]];tup`.]}each til count imgs;
+        / If null image , resize by force and don't call buggy cv2 resize()
+        ret:{$[0=(prd/) imgs[x];imgs[x]::(150,150)#100;rsz imgs[x]]}each til count imgs;
+
         / Now to chunk each directory of images into blocks of ((count imgs)%20)
         / then average each block into one image each.
         numslices:20;
@@ -37,5 +44,5 @@ pd:{
         plt:.p.import `matplotlib.pyplot;
         plt[`show;<][]}
 lst:system "ls ./input/sample_images"
-fin:{pd[x,"/"]}each lst
+fin:{pd[x,"/"]}each lst;
 
