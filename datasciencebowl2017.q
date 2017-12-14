@@ -10,7 +10,7 @@ p)import dicom
 p)import matplotlib.pyplot as plt
 imgs:()
 fig:()
-rsz:{np:.p.import`numpy;cv:.p.import`cv2;tup:.p.eval"tuple([150,150])";show imgs[0];cv[`resize;<;np[`array;>;x;tup`.]]}
+rsz:{np:.p.import`numpy;cv:.p.import`cv2;tup:.p.eval"tuple([150,150])";cv[`resize;<;np[`array;>;x];tup`.]}
 pd:{
         show x;
         ret:0;
@@ -26,7 +26,7 @@ pd:{
 
         / 512x512 is too large - resize to 150,150
         / If null image , resize by force and don't call buggy cv2 resize()
-        ret:{$[0=(prd/) imgs[x];imgs[x]::(150,150)#100;rsz imgs[x]]}each til count imgs;
+        ret:{$[0=(sum/) imgs[x];imgs[x]::(150,150)#100;rsz imgs[x]]}each til count imgs;
 
         / Now to chunk each directory of images into blocks of ((count imgs)%20)
         / then average each block into one image each.
@@ -43,6 +43,6 @@ pd:{
         k[];
         plt:.p.import `matplotlib.pyplot;
         plt[`show;<][]}
+
 lst:system "ls ./input/sample_images"
 fin:{pd[x,"/"]}each lst;
-
