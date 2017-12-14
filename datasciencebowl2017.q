@@ -46,3 +46,16 @@ pd:{
 
 lst:system "ls ./input/sample_images"
 fin:{pd[x,"/"]}each lst;
+
+/ Now on to the convolutional neural net - great reference page at -
+/ https://en.wikipedia.org/wiki/Convolutional_neural_network
+/ Simple conv net here , two conv3D layers, each activated using
+/ relU layers, then a fully-connected(fc) layer(relU-activated again),
+/ then to end with an output layer
+/ Usually, one starts with an approximate architecture, then
+/ tweaks values to get better results.
+/ Imitating the visual cortex in animals, the conv net
+/ moves over the source image, with a window(also called filter) as the lens
+/ the movements are decided by the "strides" parameter
+/ Each filter captures its results as one feature
+
