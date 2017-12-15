@@ -69,24 +69,25 @@ tf:.p.import `tensorflow
 / Initialise all weights and biases as tenforflow tensors
 / of correct dimensions
 npar:{(.p.import `numpy)[`array;>;x]}
-
-wconv1:tf[`Variable;<;tf[`random_normal;<;npar[(5;5;5;1;32)]]];
-wconv2:tf[`Variable;<;tf[`random_normal;<;npar["f"$(5;5;5;32;64)]]];
-wfc:tf[`Variable;<;tf[`random_normal;<;npar["f"$(54080;1024)]]];
+getval:{keras:.p.import `keras;keras[`backend.get_value;<;x]}
+tfvar:{tf:.p.import `tensorflow;tf[`Variable;>;x]};
+wconv1:tfvar tf[`random_normal;<;npar[(5;5;5;1;32)]];
+wconv2:tfvar tf[`random_normal;<;npar[(5;5;5;32;64)]];
+wfc:tfvar tf[`random_normal;<;npar[(54080;1024)]];
 nclasses:2
-wout:tf[`Variable;<;tf[`random_normal;<;npar["f"$(1024;nclasses)]]]
-wts:(`wconv1;`wconv2;`wfc;`out)!(wconv1;wconv2;wfc;wout)
+wout:tfvar tf[`random_normal;<;npar[(1024;nclasses)]];
+wts:(`wconv1;`wconv2;`wfc;`out)!(wconv1;wconv2;wfc;wout);
 
-bconv1:tf[`Variable;<;tf[`random_normal;<;enlist (32)]]
-bconv2:tf[`Variable;<;tf[`random_normal;<;enlist (64)]]
-bfc:tf[`Variable;<;tf[`random_normal;<;enlist (1024)]]
-bout:tf[`Variable;<;tf[`random_normal;<;enlist (nclasses)]]
+bconv1:tfvar tf[`random_normal;<;enlist (32)]
+bconv2:tfvar tf[`random_normal;<;enlist (64)]
+bfc:tfvar tf[`random_normal;<;enlist (1024)]
+bout:tfvar tf[`random_normal;<;enlist (nclasses)];
 biases:(`bconv1;`bconv2;`bfc;`out)!(bconv1;bconv2;bfc;bout)
 
 / resize all input image chunks to 3D images
 / originall dimensions - 20, 50, 50(20 blocks of 50x50 each)
 / final - 20 images of 50, 50, 20 each
-fin:{show"inside reshape";keras:.p.import`keras;npar "f"$keras[`backend.get_value;<;tf[`reshape;<;npar fin[x];`shape pykw npar (-1;50;50;count fin[x];1)]]}each til count fin;
-keras:.p.import `keras
-/ Create the first conv3d here, phew !
-tf[`nn.conv3d;<;tf[`Variable;>;fin[0]];npar "f"$keras[`backend.get_value;<;wts`wconv1];`strides pykw .p.pyeval"list([1,1,1,1,1])";`padding pykw `SAME];
+/ fin:{show"inside reshape";keras:.p.import`keras;npar "f"$getval tf[`reshape;<;npar fin x;`shape pykw npar (-1;50;50;count fin x;1)]]}each til count fin;
+fin:{show"inside reshape";tf[`reshape;<;npar fin x;`shape pykw npar (-1;50;50;count fin x;1)]}each til count fin;
+/ tf[`nn.conv3d;<;tfvar fin 0;npar "f"$getval wts`wconv1];`strides pykw .p.pyeval"list([1,1,1,1,1])";`padding pykw `SAME];
+l1:tf[`nn.conv3d;<;fin 0;npar "f"$getval wts`wconv1;`strides pykw .p.pyeval"list([1,1,1,1,1])";`padding pykw `SAME];
