@@ -51,6 +51,8 @@ lst:system "ls ./input/sample_images"
 / fin contains the pre-processed resized list of lists of slices
 fin:{pd[x,"/"]}each lst;
 
+/ ================== Neural net begins here ====================
+
 / Now on to the convolutional neural net - great reference page at -
 / https://en.wikipedia.org/wiki/Convolutional_neural_network
 / Simple conv net here , two conv3D layers, each activated using
@@ -63,10 +65,9 @@ fin:{pd[x,"/"]}each lst;
 / the movements are decided by the "strides" parameter
 
 
-/ Create a conv 3D layer, with 5x5x5 filters, 32 of them
-/ Also, since the images are gray scale, only one channel is being used
-/ One needs to initialise weights and biases according to the architecture
-
+/ Create a conv 3D layer, with dimemsion(5x5x5) filters, compute 32 features
+/ Pass those 32 outputs to another conv 3D layer, with dimension(5x5x5) filters, compute 64 features
+/ pass those 64 outputs to a dense(fully-connected) layer
 / Import tensorflow here and then begin:
 tf:.p.import `tensorflow
 keras:.p.import `keras.backend;
@@ -80,10 +81,10 @@ getval:{keras[`get_value;<;x]}
 / Utility method for tf.Variable
 tfvar:{tf:.p.import `tensorflow;tf[`Variable;>;x]};
 / Initialize weights and biases
-wconv1:tfvar tf[`random_normal;<;npar[(5;5;5;1;32)]];
-wconv2:tfvar tf[`random_normal;<;npar[(5;5;5;32;64)]];
+wconv1:tfvar tf[`random_normal;<;npar[(5;5;5;1;32)]]; / 32 features, 1 channel
+wconv2:tfvar tf[`random_normal;<;npar[(5;5;5;32;64)]]; / 64 features, 1 channel
 wfc:tfvar tf[`random_normal;<;npar[(54080;1024)]];
-nclasses:2
+nclasses:2 / if cancer, if not cancer - returned as probabilities
 wout:tfvar tf[`random_normal;<;npar[(1024;nclasses)]];
 wts:(`wconv1;`wconv2;`wfc;`out)!(wconv1;wconv2;wfc;wout);
 
@@ -99,6 +100,7 @@ biases:(`bconv1;`bconv2;`bfc;`out)!(bconv1;bconv2;bfc;bout)
 / and typecast to float 32 to match "input" variable inside conv3d call - tensorflow requirements
 fin:{show"inside reshape";tf[`reshape;<;npar "e"$fin x;`shape pykw npar (-1;50;50;count fin x;1)]}each til count fin;
 
+/ this function trains the neural net on all the reshaped 3D images
 trainnet:{
         l1:tf[`nn.conv3d;<;fin x;wts`wconv1;`strides pykw .p.pyeval"list([1,1,1,1,1])";`padding pykw `SAME];
         l1:tf[`nn.max_pool3d;<;l1;`ksize pykw .p.pyeval"list([1,1,1,1,1])"; `strides pykw .p.pyeval"list([1,2,2,2,1])";`padding pykw `SAME];
