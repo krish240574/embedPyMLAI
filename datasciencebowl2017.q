@@ -45,8 +45,8 @@ pd:{
 /        plt:.p.import `matplotlib.pyplot;
 /        plt[`show;<][]
 /       }
-/pd["0a0c32c9e08cc2ea76a71649de56be6d","/"];
 
+/ List all directories of images and resize for each
 lst:system "ls ./input/sample_images"
 / fin contains the pre-processed resized list of lists of slices
 fin:{pd[x,"/"]}each lst;
