@@ -117,27 +117,32 @@ output:trainnet each til count fin;
 / Converting to keras - not tested yet.  - need to reshape inside Keras, happening inside tf now
 / object types do not match
 
-p)from import keras.models import Sequential
+p)from keras.models import Sequential
 p)from keras.layers.core import Dense,Dropout, Activation, Flatten
+p)from keras.layers import Reshape, Lambda
+p)from keras import backend
 layers:.p.import `keras.layers
 
 model:.p.eval"Sequential()"
 model[`add;<;layers[`Conv3D;<;32;(5);`input_shape pykw (50,50,20,1);`strides pykw (1;1;1); `padding pykw `SAME;`activation pykw `relu; `kernel_initializer pykw `glorot_uniform]]
-model[`add;<;layers[`MaxPooling3D;<;`pool_size pykw (1.5;1.5;1.5);`strides pykw (1;1;1); `padding pykw `SAME]]
+model[`add;<;layers[`MaxPooling3D;<;`pool_size pykw (1;1;1);`strides pykw (2;2;2);`padding pykw `SAME]]
 model[`add;<;.p.pyeval"Dropout(0.5)"]
 model[`add;<;layers[`Conv3D;<;64;(5);`strides pykw (1;1;1); `padding pykw `SAME;`activation pykw `relu; `kernel_initializer pykw `glorot_uniform]]
-model[`add;<;layers[`MaxPooling3D;<;`pool_size pykw (1.5;1.5;1.5);`strides pykw (1;1;1); `padding pykw `SAME]]
+model[`add;<;layers[`MaxPooling3D;<;`pool_size pykw (1;1;1);`strides pykw (2;2;2); `padding pykw `SAME]]
 model[`add;<;.p.pyeval"Dropout(0.5)"]
-model[`add;<;.p.pyeval"Flatten()"]
-model[`add;<;.p.pyeval"Dense(54080,kernel_initializer='normal',activation='relu')"]
-model[`add;<;.p.pyeval"Dropout(0.5)"]
-model[`add;<;.p.pyeval"Activation('softmax')"]
-model[`compile;<;`loss pykw `categorical_crossentropy;`optimizer pykw `RMSprop]
+model[`add;<;.p.pyeval"Reshape([54080])"];
 
+model[`add;<;.p.pyeval"Dense(units=2,kernel_initializer='normal',activation='relu')"]
+model[`add;<;.p.pyeval"Activation('softmax')"]
+/ model[`add;<;.p.pyeval"Lambda(lambda x: backend.batch_flatten(x))"]
+model[`compile;<;`loss pykw `sparse_categorical_crossentropy;`optimizer pykw `RMSprop]
+resfin:keras[`reshape;<;npar fin[0];(-1,50,50,20,1)]
 
 lbl:("SI";enlist ",")0: `stage1_labels.csv
 lbl:select from lbl where id in `$lst
-
+k:lbl`cancer;
+k1:((count k)#());
 t:{$[0=k[x];k1[x]:(1 2)#(1;0);k1[x]:(1 2)#(0,1)]}
-k1:t each til count k;
+k1:t each til count t;
 
+model[`fit;<;resfin;npar k1[0]]
