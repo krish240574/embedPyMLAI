@@ -10,6 +10,7 @@ p)import dicom
 p)import matplotlib.pyplot as plt
 imgs:()
 fig:()
+shape:{if[1<count x;show count x;shape x 0]}; / implement this as a closure
 rsz:{np:.p.import`numpy;cv:.p.import`cv2;tup:.p.eval"tuple([50,50])";:cv[`resize;<;np[`array;>;x];tup`.]}
 pd:{
         show x;
@@ -34,8 +35,12 @@ pd:{
         chunksize:ceiling((count imgs)%numslices);
         taken:(t where (count imgs)>t:chunksize*til numslices) _ imgs;
         tmp:last taken;
-        l: (((first count each taken)-count tmp)#) over tmp;
+        / Make the last block = chunksize
+ l: (((first count each taken)-count tmp)#) over tmp;
         taken[-1+count taken]:tmp,l;
+        / Need to make all blocks of size 20  - some are 18, some 19
+        taken:taken,(numslices-count taken)#taken;
+        / Now average images over blocks
         newvals:avg each raze each ''taken;
         :newvals}
         / Now to plot all resized images as a grid
@@ -45,8 +50,8 @@ pd:{
 /        plt:.p.import `matplotlib.pyplot;
 /        plt[`show;<][]
 /       }
+/pd["0a0c32c9e08cc2ea76a71649de56be6d","/"];
 
-/ List all directories of images and resize for each
 lst:system "ls ./input/sample_images"
 / fin contains the pre-processed resized list of lists of slices
 fin:{pd[x,"/"]}each lst;
@@ -81,8 +86,8 @@ getval:{keras[`get_value;<;x]}
 / Utility method for tf.Variable
 tfvar:{tf:.p.import `tensorflow;tf[`Variable;>;x]};
 / Initialize weights and biases
-wconv1:tfvar tf[`random_normal;<;npar[(5;5;5;1;32)]]; / 32 features, 1 channel
-wconv2:tfvar tf[`random_normal;<;npar[(5;5;5;32;64)]]; / 64 features, 1 channel
+wconv1:tfvar tf[`random_normal;<;npar[(3;3;3;1;32)]]; / 32 features, 1 channel
+wconv2:tfvar tf[`random_normal;<;npar[(3;3;3;32;64)]]; / 64 features, 32 channel
 wfc:tfvar tf[`random_normal;<;npar[(54080;1024)]];
 nclasses:2 / if cancer, if not cancer - returned as probabilities
 wout:tfvar tf[`random_normal;<;npar[(1024;nclasses)]];
@@ -98,51 +103,50 @@ biases:(`bconv1;`bconv2;`bfc;`out)!(bconv1;bconv2;bfc;bout)
 / original dimensions - 20, 50, 50(20 blocks of 50x50 each)
 / final - 20 images of 50, 50, 20 each
 / and typecast to float 32 to match "input" variable inside conv3d call - tensorflow requirements
-fin:{show"inside reshape";tf[`reshape;<;npar "e"$fin x;`shape pykw npar (-1;50;50;count fin x;1)]}each til count fin;
+show count each fin;
+fin:{show"inside reshape";npar getval tf[`reshape;<;npar "e"$fin x;`shape pykw npar (-1;50;50;count fin x;1)]}each til count fin;
 
+opt:tf[`train.AdamOptimizer;*;`learning_rate pykw 0.001]
 / this function trains the neural net on all the reshaped 3D images
 trainnet:{
         l1:tf[`nn.conv3d;<;fin x;wts`wconv1;`strides pykw .p.pyeval"list([1,1,1,1,1])";`padding pykw `SAME];
-        l1:tf[`nn.max_pool3d;<;l1;`ksize pykw .p.pyeval"list([1,1,1,1,1])"; `strides pykw .p.pyeval"list([1,2,2,2,1])";`padding pykw `SAME];
+l1:tf[`nn.max_pool3d;<;l1;`ksize pykw .p.pyeval"list([1,2,2,2,1])"; `strides pykw .p.pyeval"list([1,2,2,2,1])";`padding pykw `SAME];
         l2:tf[`nn.relu;<;tf[`nn.conv3d;<;l1;wts`wconv2;`strides pykw .p.pyeval"list([1,1,1,1,1])";`padding pykw `SAME]];
-        l2:tf[`nn.max_pool3d;<;l2;`ksize pykw .p.pyeval"list([1,1,1,1,1])"; `strides pykw .p.pyeval"list([1,2,2,2,1])";`padding pykw `SAME];
+        l2:tf[`nn.max_pool3d;<;l2;`ksize pykw .p.pyeval"list([1,2,2,2,1])"; `strides pykw .p.pyeval"list([1,2,2,2,1])";`padding pykw `SAME];
         fc:tf[`reshape;<;l2;npar(-1;54080)];
         fc:tf[`nn.relu;<;tf[`matmul;<;fc;wts`wfc]];
         fc:tf[`nn.dropout;<;fc;0.8];
-        :getval tf[`matmul;<;fc;wts`out] }
-        
+        :tf[`matmul;<;fc;wts`out]
+/   cost:tf[`reduce_mean;<;tf[`nn.softmax_cross_entropy_with_logits;<;fc;wts`out]];
+/       opt[`minimize;*;cost]
+         }
 output:trainnet each til count fin;
 
-
-/ Converting to keras - not tested yet.  - need to reshape inside Keras, happening inside tf now
-/ object types do not match
-
-p)from keras.models import Sequential
-p)from keras.layers.core import Dense,Dropout, Activation, Flatten
-p)from keras.layers import Reshape, Lambda
-p)from keras import backend
-layers:.p.import `keras.layers
-
-model:.p.eval"Sequential()"
-model[`add;<;layers[`Conv3D;<;32;(5);`input_shape pykw (50,50,20,1);`strides pykw (1;1;1); `padding pykw `SAME;`activation pykw `relu; `kernel_initializer pykw `glorot_uniform]]
-model[`add;<;layers[`MaxPooling3D;<;`pool_size pykw (1;1;1);`strides pykw (2;2;2);`padding pykw `SAME]]
-model[`add;<;.p.pyeval"Dropout(0.5)"]
-model[`add;<;layers[`Conv3D;<;64;(5);`strides pykw (1;1;1); `padding pykw `SAME;`activation pykw `relu; `kernel_initializer pykw `glorot_uniform]]
-model[`add;<;layers[`MaxPooling3D;<;`pool_size pykw (1;1;1);`strides pykw (2;2;2); `padding pykw `SAME]]
-model[`add;<;.p.pyeval"Dropout(0.5)"]
-model[`add;<;.p.pyeval"Reshape([54080])"];
-
-model[`add;<;.p.pyeval"Dense(units=2,kernel_initializer='normal',activation='relu')"]
-model[`add;<;.p.pyeval"Activation('softmax')"]
-/ model[`add;<;.p.pyeval"Lambda(lambda x: backend.batch_flatten(x))"]
-model[`compile;<;`loss pykw `sparse_categorical_crossentropy;`optimizer pykw `RMSprop]
-resfin:keras[`reshape;<;npar fin[0];(-1,50,50,20,1)]
 
 lbl:("SI";enlist ",")0: `stage1_labels.csv
 lbl:select from lbl where id in `$lst
 k:lbl`cancer;
 k1:((count k)#());
 t:{$[0=k[x];k1[x]:(1 2)#(1;0);k1[x]:(1 2)#(0,1)]}
-k1:t each til count t;
+k1:t each til count k;
+/ output has one extra
+output:output[til count k1];
+temp:{tf[`nn.softmax_cross_entropy_with_logits;<;`logits pykw output[x];`labels pykw npar k1[x]]}each til count output
+cost:tf[`reduce_mean;<;temp];
+optimizer:opt[`minimize;*;cost]
 
-model[`fit;<;resfin;npar k1[0]]
+/ Now to run the computation graph in a tf Session
+p)import tensorflow as tf
+sess:.p.eval"tf.Session()";
+sess[`run;<;.p.pyeval"tf.global_variables_initializer()"];
+fin:fin[til count k1]; ////////
+.p.set[`X;fin]
+.p.set[`Y;k1]
+p)x = tf.placeholder('float')
+p)y = tf.placeholder('float')
+.p.set[`optimizer;optimizer]
+.p.set[`cost;cost]
+.p.set[`sess;sess]
+/ p)sess.run([optimizer, cost], feed_dict={x: X, y: Y})
+o:.p.eval"sess.run([optimizer, cost], feed_dict={x: X, y: Y})"
+show o ;
