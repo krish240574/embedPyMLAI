@@ -1,3 +1,4 @@
+/ Data science bowl 2017 on kaggle - https://www.kaggle.com/c/data-science-bowl-2017
 / Complete rewrite of code to read scan images -
 / Reading using read_file of pydicom returns a FileDataSet object
 / on passing to q, all data is clobbered
@@ -36,21 +37,20 @@ pd:{
         taken:(t where (count imgs)>t:chunksize*til numslices) _ imgs;
         tmp:last taken;
         / Make the last block = chunksize
- l: (((first count each taken)-count tmp)#) over tmp;
+        l: (((first count each taken)-count tmp)#) over tmp;
         taken[-1+count taken]:tmp,l;
         / Need to make all blocks of size 20  - some are 18, some 19
         taken:taken,(numslices-count taken)#taken;
         / Now average images over blocks
         newvals:avg each raze each ''taken;
         :newvals}
-        / Now to plot all resized images as a grid
+        / Now to plot all resized images as a grid - uncomment if you want to see the grid
 /        fig::.p.eval"plt.figure()";
 /        k:{(.p.wrap fig[`add_subplot;<;4;5;x+1])[`imshow;<;newvals x;`cmap pykw `gray]}each til count newvals;
 /        k[];
 /        plt:.p.import `matplotlib.pyplot;
 /        plt[`show;<][]
 /       }
-/pd["0a0c32c9e08cc2ea76a71649de56be6d","/"];
 
 lst:system "ls ./input/sample_images"
 / fin contains the pre-processed resized list of lists of slices
@@ -110,25 +110,24 @@ opt:tf[`train.AdamOptimizer;*;`learning_rate pykw 0.001]
 / this function trains the neural net on all the reshaped 3D images
 trainnet:{
         l1:tf[`nn.conv3d;<;fin x;wts`wconv1;`strides pykw .p.pyeval"list([1,1,1,1,1])";`padding pykw `SAME];
-l1:tf[`nn.max_pool3d;<;l1;`ksize pykw .p.pyeval"list([1,2,2,2,1])"; `strides pykw .p.pyeval"list([1,2,2,2,1])";`padding pykw `SAME];
+        l1:tf[`nn.max_pool3d;<;l1;`ksize pykw .p.pyeval"list([1,2,2,2,1])"; `strides pykw .p.pyeval"list([1,2,2,2,1])";`padding pykw `SAME];
         l2:tf[`nn.relu;<;tf[`nn.conv3d;<;l1;wts`wconv2;`strides pykw .p.pyeval"list([1,1,1,1,1])";`padding pykw `SAME]];
         l2:tf[`nn.max_pool3d;<;l2;`ksize pykw .p.pyeval"list([1,2,2,2,1])"; `strides pykw .p.pyeval"list([1,2,2,2,1])";`padding pykw `SAME];
         fc:tf[`reshape;<;l2;npar(-1;54080)];
         fc:tf[`nn.relu;<;tf[`matmul;<;fc;wts`wfc]];
         fc:tf[`nn.dropout;<;fc;0.8];
         :tf[`matmul;<;fc;wts`out]
-/   cost:tf[`reduce_mean;<;tf[`nn.softmax_cross_entropy_with_logits;<;fc;wts`out]];
-/       opt[`minimize;*;cost]
          }
 output:trainnet each til count fin;
 
-
+/ read labels from disk - for some reason, 1 is missing. 
 lbl:("SI";enlist ",")0: `stage1_labels.csv
 lbl:select from lbl where id in `$lst
 k:lbl`cancer;
 k1:((count k)#());
 t:{$[0=k[x];k1[x]:(1 2)#(1;0);k1[x]:(1 2)#(0,1)]}
 k1:t each til count k;
+
 / output has one extra
 output:output[til count k1];
 temp:{tf[`nn.softmax_cross_entropy_with_logits;<;`logits pykw output[x];`labels pykw npar k1[x]]}each til count output
@@ -139,7 +138,7 @@ optimizer:opt[`minimize;*;cost]
 p)import tensorflow as tf
 sess:.p.eval"tf.Session()";
 sess[`run;<;.p.pyeval"tf.global_variables_initializer()"];
-fin:fin[til count k1]; ////////
+fin:fin[til count k1]; / lose one image for now - the missing patient mystery
 .p.set[`X;fin]
 .p.set[`Y;k1]
 p)x = tf.placeholder('float')
@@ -148,5 +147,6 @@ p)y = tf.placeholder('float')
 .p.set[`cost;cost]
 .p.set[`sess;sess]
 / p)sess.run([optimizer, cost], feed_dict={x: X, y: Y})
+/ Could run as sess[`run;(optimizer;cost) ; don't know how to pass the feed_dict - x and y need to be tf placeholders - will figure it out
 o:.p.eval"sess.run([optimizer, cost], feed_dict={x: X, y: Y})"
 show o ;
