@@ -104,7 +104,7 @@ biases:(`bconv1;`bconv2;`bfc;`out)!(bconv1;bconv2;bfc;bout)
 / final - 20 images of 50, 50, 20 each
 / and typecast to float 32 to match "input" variable inside conv3d call - tensorflow requirements
 show count each fin;
-fin:{show"inside reshape";npar getval tf[`reshape;<;npar "e"$fin x;`shape pykw npar (-1;50;50;count fin x;1)]}each til count fin;
+fin:{npar getval tf[`reshape;<;npar "e"$fin x;`shape pykw npar (-1;50;50;count fin x;1)]}each til count fin;
 
 opt:tf[`train.AdamOptimizer;*;`learning_rate pykw 0.001]
 / this function trains the neural net on all the reshaped 3D images
