@@ -154,6 +154,7 @@ p)y = tf.placeholder('float')
 / p)sess.run([optimizer, cost], feed_dict={x: X, y: Y})
 / Could run as sess[`run;(optimizer;cost) ; don't know how to pass the feed_dict - x and y need to be tf placeholders - will figure it out
 o:.p.eval"sess.run([optimizer, cost], feed_dict={x: X, y: Y})"
+show "Cost: ";
 show o` ;
 
 / Evaluate
