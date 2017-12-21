@@ -29,7 +29,6 @@ pd:{
         / 512x512 is too large - resize to 50,50
         / If null image , resize by force and don't call buggy cv2 resize()
         ret:{$[0=(sum/) imgs[x];imgs[x]::(50,50)#100;imgs[x]::rsz imgs[x]]}each til count imgs;
-
         / Now to chunk each directory of images into blocks of ((count imgs)%20)
         / then average each block into one image each.
         numslices:20;
@@ -62,7 +61,7 @@ fin:{pd[x,"/"]}each lst;
 / https://en.wikipedia.org/wiki/Convolutional_neural_network
 / Simple conv net here , two conv3D layers, each activated using
 / relU layers, then a fully-connected(fc) layer(relU-activated again),
-/ then to end with an output layer
+/ then to end with an prediction layer
 / Usually, one starts with an approximate architecture, then
 / tweaks values to get better results.
 / Imitating the visual cortex in animals, the conv net
@@ -71,8 +70,8 @@ fin:{pd[x,"/"]}each lst;
 
 
 / Create a conv 3D layer, with dimemsion(5x5x5) filters, compute 32 features
-/ Pass those 32 outputs to another conv 3D layer, with dimension(5x5x5) filters, compute 64 features
-/ pass those 64 outputs to a dense(fully-connected) layer
+/ Pass those 32 predictions to another conv 3D layer, with dimension(5x5x5) filters, compute 64 features
+/ pass those 64 predictions to a dense(fully-connected) layer
 / Import tensorflow here and then begin:
 tf:.p.import `tensorflow
 keras:.p.import `keras.backend;
@@ -118,19 +117,19 @@ trainnet:{
         fc:tf[`nn.dropout;<;fc;0.8];
         :tf[`matmul;<;fc;wts`out]
          }
-output:trainnet each til count fin;
+prediction:trainnet each til count fin;
 
-/ read labels from disk - for some reason, 1 is missing. 
+/ read labels from disk - for some reason, 1 is missing.
 lbl:("SI";enlist ",")0: `stage1_labels.csv
-lbl:select from lbl where id in `$lst
+lbl:select from lbl where id in `$lst;
 k:lbl`cancer;
 k1:((count k)#());
 t:{$[0=k[x];k1[x]:(1 2)#(1;0);k1[x]:(1 2)#(0,1)]}
 k1:t each til count k;
 
-/ output has one extra
-output:output[til count k1];
-temp:{tf[`nn.softmax_cross_entropy_with_logits;<;`logits pykw output[x];`labels pykw npar k1[x]]}each til count output
+/ prediction has one extra
+prediction:prediction[til count k1];
+temp:{tf[`nn.softmax_cross_entropy_with_logits;<;`logits pykw prediction[x];`labels pykw npar k1[x]]}each til count prediction;
 cost:tf[`reduce_mean;<;temp];
 optimizer:opt[`minimize;*;cost]
 
@@ -139,8 +138,14 @@ p)import tensorflow as tf
 sess:.p.eval"tf.Session()";
 sess[`run;<;.p.pyeval"tf.global_variables_initializer()"];
 fin:fin[til count k1]; / lose one image for now - the missing patient mystery
-.p.set[`X;fin]
-.p.set[`Y;k1]
+/ Split into training and validation sets 80-20 split
+ktmp:ceiling 0.8*count fin;
+fintrain:fin til ktmp;
+finvalidate:fin ktmp + til (count fin) - ktmp;
+k1train:k1 til ktmp;
+k1validate:k1 ktmp + til (count k1) - ktmp ;
+.p.set[`X;fintrain];
+.p.set[`Y;k1train];
 p)x = tf.placeholder('float')
 p)y = tf.placeholder('float')
 .p.set[`optimizer;optimizer]
@@ -149,8 +154,7 @@ p)y = tf.placeholder('float')
 / p)sess.run([optimizer, cost], feed_dict={x: X, y: Y})
 / Could run as sess[`run;(optimizer;cost) ; don't know how to pass the feed_dict - x and y need to be tf placeholders - will figure it out
 o:.p.eval"sess.run([optimizer, cost], feed_dict={x: X, y: Y})"
-/ Loss
-show (o`)1;
+show o` ;
 
 / Evaluate
 / prediction and k1 are nested, so un-nest them
