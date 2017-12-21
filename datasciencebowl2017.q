@@ -44,7 +44,7 @@ pd:{
         / Now average images over blocks
         newvals:avg each raze each ''taken;
         :newvals}
-        / Now to plot all resized images as a grid - uncomment if you want to see the grid
+ / Now to plot all resized images as a grid - uncomment if you want to see the grid
 /        fig::.p.eval"plt.figure()";
 /        k:{(.p.wrap fig[`add_subplot;<;4;5;x+1])[`imshow;<;newvals x;`cmap pykw `gray]}each til count newvals;
 /        k[];
@@ -128,47 +128,54 @@ t:{$[0=k[x];k1[x]:(1 2)#(1;0);k1[x]:(1 2)#(0,1)]}
 k1:t each til count k;
 
 / prediction has one extra
-prediction:prediction[til count k1];
+if[(count prediction) <> (count k1); prediction:prediction[til count k1]];
 temp:{tf[`nn.softmax_cross_entropy_with_logits;<;`logits pykw prediction[x];`labels pykw npar k1[x]]}each til count prediction;
 cost:tf[`reduce_mean;<;temp];
 optimizer:opt[`minimize;*;cost]
+
+/ prediction and k1 are nested, so un-nest them
+prediction:((count prediction),2)#raze over getval each prediction;
+k1:((count k1),2)#raze over k1;
 
 / Now to run the computation graph in a tf Session
 p)import tensorflow as tf
 sess:.p.eval"tf.Session()";
 sess[`run;<;.p.pyeval"tf.global_variables_initializer()"];
-fin:fin[til count k1]; / lose one image for now - the missing patient mystery
+if[(count fin) <> count k1; fin:fin[til count k1]]; / lose one image for now - the missing patient mystery
 / Split into training and validation sets 80-20 split
 ktmp:ceiling 0.8*count fin;
 fintrain:fin til ktmp;
 finvalidate:fin ktmp + til (count fin) - ktmp;
 k1train:k1 til ktmp;
 k1validate:k1 ktmp + til (count k1) - ktmp ;
-.p.set[`X;fintrain];
-.p.set[`Y;k1train];
+
 p)x = tf.placeholder('float')
 p)y = tf.placeholder('float')
+.p.set[`sess;sess];
 .p.set[`optimizer;optimizer]
-.p.set[`cost;cost]
-.p.set[`sess;sess]
-/ p)sess.run([optimizer, cost], feed_dict={x: X, y: Y})
-/ Could run as sess[`run;(optimizer;cost) ; don't know how to pass the feed_dict - x and y need to be tf placeholders - will figure it out
-o:.p.eval"sess.run([optimizer, cost], feed_dict={x: X, y: Y})"
-show "Loss :";
-show (o`)1 ;
-
-/ Evaluate
-/ prediction and k1 are nested, so un-nest them
-prediction:((count prediction),2)#raze over getval each prediction;
-k1:((count k1),2)#raze over k1;
-correct:tf[`equal;<;tf[`argmax;<;npar prediction;npar 1];tf[`argmax;<;npar k1;npar 1]];
-accuracy:tf[`reduce_mean;<;tf[`cast;<;correct;`float]]
-
-/ Evaluate on validation data
-.p.set[`Xval;finvalidate]
-.p.set[`Yval;k1validate]
-.p.set[`accuracy;accuracy]
-show "Validation data accuracy :";
-acceval:.p.eval"accuracy.eval({x:Xval,y:Yval}, session=sess)"
-show acceval`;
-
+.p.set[`cost;cost];
+/ Lambda for evaluating accuracy
+evalacc:{[acc]
+        .p.set[`Xval;finvalidate[x]];
+        .p.set[`Yval;k1validate[x]];
+        .p.set[`accuracy;acc];
+        show "Validation data accuracy :";
+        acceval:.p.eval"accuracy.eval({x:Xval,y:Yval}, session=sess)";
+        show acceval`};
+runsession:{
+        .p.set[`X;fintrain[x]];
+        .p.set[`Y;k1train[x]];
+        o:.p.eval"sess.run([optimizer, cost], feed_dict={x: X, y: Y})";
+        show (o`)1;
+        };
+runepochs:{
+        runsession each til count fintrain;
+        correct:tf[`equal;<;tf[`argmax;<;npar prediction;npar 1];tf[`argmax;<;npar k1;npar 1]];
+        accuracy:tf[`reduce_mean;<;tf[`cast;<;correct;`float]];
+        evalacc[accuracy];
+        };
+show "Running for 1 epoch now...";
+runepochs[];
+/ runepochs each til 50; / 50 epochs - 50 runs through the same data
+/ Final evaluate on validation data
+evalacc[]
