@@ -13,7 +13,6 @@ np:.p.import`numpy
 npar:{np[`array;>;x]};
 imgs:()
 fig:()
-shape:{if[1<count x;show count x;shape x 0]}; / implement this as a closure
 rsz:{cv:.p.import`cv2;tup:.p.eval"tuple([50,50])";:cv[`resize;<;npar x;tup`.]}
 pd:{
         show x;
