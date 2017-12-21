@@ -164,8 +164,6 @@ prediction:((count prediction),2)#raze over getval each prediction;
 k1:((count k1),2)#raze over k1;
 correct:tf[`equal;<;tf[`argmax;<;npar prediction;npar 1];tf[`argmax;<;npar k1;npar 1]];
 accuracy:tf[`reduce_mean;<;tf[`cast;<;correct;`float]]
-show "Training accuracy :";
-show getval accuracy;
 
 / Evaluate on validation data
 .p.set[`Xval;finvalidate]
