@@ -9,10 +9,12 @@ p)import os
 p)import numpy as np
 p)import dicom
 p)import matplotlib.pyplot as plt
+np:.p.import`numpy
+npar:{np[`array;>;x]};
 imgs:()
 fig:()
 shape:{if[1<count x;show count x;shape x 0]}; / implement this as a closure
-rsz:{np:.p.import`numpy;cv:.p.import`cv2;tup:.p.eval"tuple([50,50])";:cv[`resize;<;np[`array;>;x];tup`.]}
+rsz:{cv:.p.import`cv2;tup:.p.eval"tuple([50,50])";:cv[`resize;<;npar x;tup`.]}
 pd:{
         show x;
         ret:0;
@@ -79,7 +81,6 @@ keras:.p.import `keras.backend;
 / of correct dimensions
 / Utility method to get a foeign pointer to n-dim arrays
 / Workaround for the tuple problem - ndim arrays get converted to tuples (n>1)
-npar:{(.p.import `numpy)[`array;>;x]}
 / Utility method to get a value inside a TensorFlow object
 getval:{keras[`get_value;<;x]}
 / Utility method for tf.Variable
@@ -154,8 +155,8 @@ p)y = tf.placeholder('float')
 / p)sess.run([optimizer, cost], feed_dict={x: X, y: Y})
 / Could run as sess[`run;(optimizer;cost) ; don't know how to pass the feed_dict - x and y need to be tf placeholders - will figure it out
 o:.p.eval"sess.run([optimizer, cost], feed_dict={x: X, y: Y})"
-show "Cost: ";
-show o` ;
+show "Loss :";
+show (o`)1 ;
 
 / Evaluate
 / prediction and k1 are nested, so un-nest them
@@ -173,3 +174,4 @@ show getval accuracy;
 show "Validation data accuracy :";
 acceval:.p.eval"accuracy.eval({x:Xval,y:Yval}, session=sess)"
 show acceval`;
+
