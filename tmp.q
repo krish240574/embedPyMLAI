@@ -141,12 +141,7 @@ sess:.p.eval"tf.Session()";
 sess[`run;<;.p.pyeval"tf.global_variables_initializer()"];
 if[(count fin) <> count k1; fin:fin[til count k1]]; / lose one image for now - the missing patient mystery
 
-/ Split into training and validation sets 80-20 split
-ktmp:ceiling 0.8*count fin;
-fintrain:fin til ktmp;
-finvalidate::fin ktmp + til (count fin) - ktmp;
-k1train:k1 til ktmp;
-k1validate:k1 ktmp + til (count k1) - ktmp ;
+
 
 p)x = tf.placeholder('float')
 p)y = tf.placeholder('float')
@@ -193,3 +188,15 @@ runepochs:{
 accuracy:runepochs each til 20; / 20 epochs - 50 runs through the same data
 / Final evaluate on validation data
 evalacc[accuracy];
+
+
+==================================================
+
+/ Split into training and validation sets 80-20 split
+ktmp:ceiling 0.8*count fin;
+fintrain:fin til ktmp;
+finvalidate::fin ktmp + til (count fin) - ktmp;
+k1train:k1 til ktmp;
+k1validate:k1 ktmp + til (count k1) - ktmp ;
+prediction:trainnet each til count fintrain;
+
