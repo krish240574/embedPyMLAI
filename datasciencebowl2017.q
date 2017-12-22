@@ -11,6 +11,8 @@ p)import numpy as np
 p)import dicom
 p)import matplotlib.pyplot as plt
 np:.p.import`numpy
+/ Utility method to get a foeign pointer to n-dim arrays
+/ Workaround for the tuple problem - ndim arrays get converted to tuples (n>1)
 npar:{np[`array;>;x]};
 imgs:()
 fig:()
@@ -70,21 +72,20 @@ fin:{pd[x,"/"]}each lst;
 / moves over the source image, with a window(also called filter) as the lens
 / the movements are decided by the "strides" parameter
 
-
 / Create a conv 3D layer, with dimemsion(5x5x5) filters, compute 32 features
 / Pass those 32 predictions to another conv 3D layer, with dimension(5x5x5) filters, compute 64 features
 / pass those 64 predictions to a dense(fully-connected) layer
 / Import tensorflow here and then begin:
 tf:.p.import `tensorflow
 keras:.p.import `keras.backend;
-/ Initialise all weights and biases as tenforflow tensors
-/ of correct dimensions
-/ Utility method to get a foeign pointer to n-dim arrays
-/ Workaround for the tuple problem - ndim arrays get converted to tuples (n>1)
+
 / Utility method to get a value inside a TensorFlow object
 getval:{keras[`get_value;<;x]}
 / Utility method for tf.Variable
 tfvar:{tf:.p.import `tensorflow;tf[`Variable;>;x]};
+
+/ Initialise all weights and biases as tenforflow tensors
+/ of correct dimensions
 / Initialize weights and biases
 wconv1:tfvar tf[`random_normal;<;npar[(3;3;3;1;32)]]; / 32 features, 1 channel
 wconv2:tfvar tf[`random_normal;<;npar[(3;3;3;32;64)]]; / 64 features, 32 channel
