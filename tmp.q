@@ -1,4 +1,5 @@
 / Data science bowl 2017 on kaggle - https://www.kaggle.com/c/data-science-bowl-2017
+/ this code runs with the sample image set. Have yet to run on entire set(1000+ patients)
 / Complete rewrite of code to read scan images -
 / Reading using read_file of pydicom returns a FileDataSet object
 / on passing to q, all data is clobbered
@@ -10,6 +11,8 @@ p)import numpy as np
 p)import dicom
 p)import matplotlib.pyplot as plt
 np:.p.import`numpy
+/ Utility method to get a foeign pointer to n-dim arrays
+/ Workaround for the tuple problem - ndim arrays get converted to tuples (n>1)
 npar:{np[`array;>;x]};
 imgs:()
 fig:()
@@ -44,9 +47,9 @@ pd:{
         / Now average images over blocks
         newvals:avg each raze each ''taken;
         :newvals}
-        / Now to plot all resized images as a grid - uncomment if you want to see the grid
+ / Now to plot all resized images as a grid - uncomment if you want to see the grid
 /        fig::.p.eval"plt.figure()";
- k:{(.p.wrap fig[`add_subplot;<;4;5;x+1])[`imshow;<;newvals x;`cmap pykw `gray]}each til count newvals;
+/        k:{(.p.wrap fig[`add_subplot;<;4;5;x+1])[`imshow;<;newvals x;`cmap pykw `gray]}each til count newvals;
 /        k[];
 /        plt:.p.import `matplotlib.pyplot;
 /        plt[`show;<][]
@@ -69,21 +72,20 @@ fin:{pd[x,"/"]}each lst;
 / moves over the source image, with a window(also called filter) as the lens
 / the movements are decided by the "strides" parameter
 
-
 / Create a conv 3D layer, with dimemsion(5x5x5) filters, compute 32 features
 / Pass those 32 predictions to another conv 3D layer, with dimension(5x5x5) filters, compute 64 features
 / pass those 64 predictions to a dense(fully-connected) layer
 / Import tensorflow here and then begin:
 tf:.p.import `tensorflow
 keras:.p.import `keras.backend;
-/ Initialise all weights and biases as tenforflow tensors
-/ of correct dimensions
-/ Utility method to get a foeign pointer to n-dim arrays
-/ Workaround for the tuple problem - ndim arrays get converted to tuples (n>1)
+
 / Utility method to get a value inside a TensorFlow object
 getval:{keras[`get_value;<;x]}
 / Utility method for tf.Variable
 tfvar:{tf:.p.import `tensorflow;tf[`Variable;>;x]};
+
+/ Initialise all weights and biases as tenforflow tensors
+/ of correct dimensions
 / Initialize weights and biases
 wconv1:tfvar tf[`random_normal;<;npar[(3;3;3;1;32)]]; / 32 features, 1 channel
 wconv2:tfvar tf[`random_normal;<;npar[(3;3;3;32;64)]]; / 64 features, 32 channel
@@ -105,9 +107,12 @@ biases:(`bconv1;`bconv2;`bfc;`out)!(bconv1;bconv2;bfc;bout)
 show count each fin;
 fin:{npar getval tf[`reshape;<;npar "e"$fin x;`shape pykw npar (-1;50;50;count fin x;1)]}each til count fin;
 
+/ opt:tf[`train.AdamOptimizer;<;`learning_rate pykw 0.001]
+p)import tensorflow as tf
+opt:.p.eval"tf.train.AdamOptimizer(learning_rate=0.001)";
 / this function trains the neural net on all the reshaped 3D images
 trainnet:{
-        l1:tf[`nn.conv3d;<;fin x;wts`wconv1;`strides pykw .p.pyeval"list([1,1,1,1,1])";`padding pykw `SAME];
+        l1:tf[`nn.conv3d;<;findata x;wts`wconv1;`strides pykw .p.pyeval"list([1,1,1,1,1])";`padding pykw `SAME];
         l1:tf[`nn.max_pool3d;<;l1;`ksize pykw .p.pyeval"list([1,2,2,2,1])"; `strides pykw .p.pyeval"list([1,2,2,2,1])";`padding pykw `SAME];
         l2:tf[`nn.relu;<;tf[`nn.conv3d;<;l1;wts`wconv2;`strides pykw .p.pyeval"list([1,1,1,1,1])";`padding pykw `SAME]];
         l2:tf[`nn.max_pool3d;<;l2;`ksize pykw .p.pyeval"list([1,2,2,2,1])"; `strides pykw .p.pyeval"list([1,2,2,2,1])";`padding pykw `SAME];
@@ -116,7 +121,6 @@ trainnet:{
         fc:tf[`nn.dropout;<;fc;0.8];
         :tf[`matmul;<;fc;wts`out]
          }
-/ prediction:trainnet each til count fin;
 
 / read labels from disk - for some reason, 1 is missing.
 lbl:("SI";enlist ",")0: `stage1_labels.csv
@@ -125,32 +129,49 @@ k:lbl`cancer;
 k1:((count k)#());
 t:{$[0=k[x];k1[x]:(1 2)#(1;0);k1[x]:(1 2)#(0,1)]}
 k1:t each til count k;
-
-/ prediction has one extra
-/ if[(count prediction) <> (count k1); prediction:prediction[til count k1]];
-/ temp:{tf[`nn.softmax_cross_entropy_with_logits;<;`logits pykw prediction[x];`labels pykw npar k1[x]]}each til count prediction;
-/ cost:tf[`reduce_mean;<;temp];
-/ optimizer:opt[`minimize;*;cost]
-
-/ k1 is nested, so un-nest
+/ k1 is nested - un-nest
 k1:((count k1),2)#raze over k1;
+/ One patient missing - so equalize count for now - will fix this
+if[(count fin) <> count k1; fin:fin til count k1];
+
+/ Split into training and validation sets 80-20 split
+ktmp:ceiling 0.8*count fin;
+fintrain:fin til ktmp;
+finvalidate:fin ktmp + til (count fin) - ktmp;
+k1train:k1 til ktmp;
+k1validate:k1 ktmp + til (count k1) - ktmp ;
+/ Run neural net on training data
+findata:fintrain;
+/ Since prediction needs to be part of the tf graph inside the
+/ python space, run it inside python
+.p.set[`trainnet;trainnet];
+.p.set[`findata;findata];
+p)prediction=[trainnet(i) for i in np.arange(len(findata))]
+prediction:(.p.get `prediction)`;
+prediction:((count prediction),2)#raze over getval each prediction;
+/ prediction:trainnet each til count findata;
+show "here";
+temp:tf[`nn.softmax_cross_entropy_with_logits;<;`logits pykw npar prediction;`labels pykw npar k1train]
+/ temp:{tf[`nn.softmax_cross_entropy_with_logits;<;`logits pykw npar prediction[x];`labels pykw npar k1train[x]]}each til count prediction;
+cost:tf[`reduce_mean;<;temp];
+show "here";
+/ Create optimizer node in tf graph
+optimizer:opt[`minimize;*;cost]
 
 / Now to run the computation graph in a tf Session
 p)import tensorflow as tf
 sess:.p.eval"tf.Session()";
 sess[`run;<;.p.pyeval"tf.global_variables_initializer()"];
-if[(count fin) <> count k1; fin:fin[til count k1]]; / lose one image for now - the missing patient mystery
-
-
 
 p)x = tf.placeholder('float')
 p)y = tf.placeholder('float')
 .p.set[`sess;sess];
-prediction:();
+.p.set[`optimizer;optimizer]
+.p.set[`cost;cost];
 / Lambda for evaluating accuracy
 evalacc:{[acc]
-        .p.set[`Xval;finvalidate];
-        .p.set[`Yval;k1validate];
+        .p.set[`Xval;finvalidate[x]];
+        .p.set[`Yval;k1validate[x]];
         .p.set[`accuracy;acc];
         show "Validation data accuracy :";
         acceval:.p.eval"accuracy.eval({x:Xval,y:Yval}, session=sess)";
@@ -161,51 +182,17 @@ runsession:{
         o:.p.eval"sess.run([optimizer, cost], feed_dict={x: X, y: Y})";
         show (o`)1;
         };
-opt:.p.eval"tf.train.AdamOptimizer(learning_rate=0.001)";
-/ opt:tf[`train.AdamOptimizer;<;`learning_rate pykw 0.001];
-runepochs:{
-        show "==============";
-        show "Epoch :";
-        show x;
-        show "==============";
-        / Get predictions for training set
-        prediction::trainnet each til count fintrain;
-        / prediction is nested, so un-nest it
-        prediction::((count prediction),2)#raze over getval each prediction;
-        temp:{tf[`nn.softmax_cross_entropy_with_logits;<;`labels pykw npar k1train[x];`logits pykw npar prediction[x]]}each til count prediction;
-        cost:tf[`reduce_mean;<;temp];
-        optimizer:opt[`minimize;<;cost];
-        .p.set[`optimizer;optimizer];
-        .p.set[`cost;cost];
-        / Run tf session for training set
-        runsession each til count fintrain;
-        / Validate on validation set
-        correct:tf[`equal;<;tf[`argmax;<;npar prediction;npar 1];tf[`argmax;<;npar k1train;npar 1]];
-        accuracy:tf[`reduce_mean;<;tf[`cast;<;correct;`float]];
-        evalacc[accuracy] ;
-        :accuracy
-        };
-accuracy:runepochs each til 20; / 20 epochs - 50 runs through the same data
-/ Final evaluate on validation data
-evalacc[accuracy];
-
-
-==================================================
-
-/ Split into training and validation sets 80-20 split
-ktmp:ceiling 0.8*count fin;
-fintrain:fin til ktmp;
-finvalidate::fin ktmp + til (count fin) - ktmp;
-k1train:k1 til ktmp;
-k1validate:k1 ktmp + til (count k1) - ktmp ;
-/ then run prediction and set into tf graph 
-prediction:trainnet each til count fintrain;
-p.pset[`prediction;prediction]
 runepochs:{
         runsession each til count fintrain;
         / get prediction from py-universe each time
-        prediction:.p.get`prediction;
+        prediction:(.p.get`prediction)`;
+        prediction:((count prediction),2)#raze over getval each prediction;
         correct:tf[`equal;<;tf[`argmax;<;npar prediction;npar 1];tf[`argmax;<;npar k1train;npar 1]];
         accuracy:tf[`reduce_mean;<;tf[`cast;<;correct;`float]];
         evalacc[accuracy];
         };
+show "Running for 3 epochs now...";
+runepochs each til 3;
+/ runepochs each til 50; / 50 epochs - 50 runs through the same data
+/ Final evaluate on validation data
+evalacc[]
