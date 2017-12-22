@@ -35,7 +35,7 @@ pd:{
         / then average each block into one image each.
         numslices:20;
         chunksize:ceiling((count imgs)%numslices);
-        taken:(t where (count imgs)>t:chunksize*til numslices) _ imgs;
+        taken:(t where (count imgs)>t:chunksize*til numslices) _ imgs; 
         tmp:last taken;
         / Make the last block = chunksize
         l: (((first count each taken)-count tmp)#) over tmp;
