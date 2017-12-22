@@ -198,5 +198,14 @@ fintrain:fin til ktmp;
 finvalidate::fin ktmp + til (count fin) - ktmp;
 k1train:k1 til ktmp;
 k1validate:k1 ktmp + til (count k1) - ktmp ;
+/ then run prediction and set into tf graph 
 prediction:trainnet each til count fintrain;
-
+p.pset[`prediction;prediction]
+runepochs:{
+        runsession each til count fintrain;
+        / get prediction from py-universe each time
+        prediction:.p.get`prediction;
+        correct:tf[`equal;<;tf[`argmax;<;npar prediction;npar 1];tf[`argmax;<;npar k1train;npar 1]];
+        accuracy:tf[`reduce_mean;<;tf[`cast;<;correct;`float]];
+        evalacc[accuracy];
+        };
