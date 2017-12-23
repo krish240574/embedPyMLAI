@@ -36,8 +36,8 @@ pd:{
         / Now to chunk each directory of images into blocks of ((count imgs)%20)
         / then average each block into one image each.
         numslices:20;
-        chunksize:ceiling((count imgs)%numslices);
-        taken:(t where (count imgs)>t:chunksize*til numslices) _ imgs; 
+       chunksize:ceiling((count imgs)%numslices);
+        taken:(t where (count imgs)>t:chunksize*til numslices) _ imgs;
         tmp:last taken;
         / Make the last block = chunksize
         l: (((first count each taken)-count tmp)#) over tmp;
@@ -120,6 +120,8 @@ trainnet:{
         :tf[`matmul;<;fc;wts`out]
          }
 prediction:trainnet each til count fin;
+/ Add to tf graph explicitly
+tf[`add_to_collection;<;`prediction;prediction];
 
 / read labels from disk - for some reason, 1 is missing.
 lbl:("SI";enlist ",")0: `stage1_labels.csv
@@ -157,9 +159,9 @@ p)y = tf.placeholder('float')
 .p.set[`optimizer;optimizer]
 .p.set[`cost;cost];
 / Lambda for evaluating accuracy
-evalacc:{[acc]
-        .p.set[`Xval;finvalidate[x]];
-        .p.set[`Yval;k1validate[x]];
+evalacc:{[acc;c]
+        .p.set[`Xval;finvalidate[c]];
+        .p.set[`Yval;k1validate[c]];
         .p.set[`accuracy;acc];
         show "Validation data accuracy :";
         acceval:.p.eval"accuracy.eval({x:Xval,y:Yval}, session=sess)";
@@ -167,14 +169,17 @@ evalacc:{[acc]
 runsession:{
         .p.set[`X;fintrain[x]];
         .p.set[`Y;k1train[x]];
-        o:.p.eval"sess.run([optimizer, cost], feed_dict={x: X, y: Y})";
-        show (o`)1;
+        o:.p.eval"sess.run([tf.get_collection(\"prediction\"), optimizer, cost], feed_dict={x: X, y: Y})";
+        t:count raze (o`)0;
+        t:(t,2)#raze over (o`)0;
+        show avg t;
+        :avg t;
         };
 runepochs:{
-        runsession each til count fintrain;
-        correct:tf[`equal;<;tf[`argmax;<;npar prediction;npar 1];tf[`argmax;<;npar k1;npar 1]];
+        prediction:runsession each til count fintrain;
+        correct:tf[`equal;<;tf[`argmax;<;npar prediction;npar 1];tf[`argmax;<;npar k1train;npar 1]];
         accuracy:tf[`reduce_mean;<;tf[`cast;<;correct;`float]];
-        evalacc[accuracy];
+        evalacc[accuracy] each til count finvalidate;
         };
 show "Running for 1 epoch now...";
 runepochs[];
