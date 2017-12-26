@@ -124,7 +124,7 @@ trainnet:{
         fc:tf[`nn.dropout;<;fc;0.8];
         :tf[`matmul;<;fc;wts`out]
          }
-data:fin;
+nndata:fin;
 prediction:trainnet each til count fin; / can safely average predictions here, doing so later anyways
 / Add to tf graph explicitly
 tf[`add_to_collection;<;`prediction;prediction];
