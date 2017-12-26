@@ -1,5 +1,4 @@
 / Data science bowl 2017 on kaggle - https://www.kaggle.com/c/data-science-bowl-2017
-/ this code runs with the sample image set. Have yet to run on entire set(1000+ patients)
 / Complete rewrite of code to read scan images -
 / Reading using read_file of pydicom returns a FileDataSet object
 / on passing to q, all data is clobbered
@@ -129,16 +128,16 @@ prediction:trainnet each til count fin; / can safely average predictions here, d
 / Add to tf graph explicitly
 tf[`add_to_collection;<;`prediction;prediction];
 
-/ read labels from disk - for some reason, 1 is missing.
+/ read labels from disk
 readlabels:{[lst]
         lbl:("SI";enlist ",")0: `:stage1_labels.csv;
         lbl:select from lbl where id in `$lst;
-        k:lbl`cancer;
-        k1:((count k)#());
-        t:{$[0=k[x];k1[x]:(1 2)#(1;0);k1[x]:(1 2)#(0,1)]} ;
-        k1:t each til count k;
-        :k1};
-k1:readlabels[lst];
+        k::lbl`cancer;
+        labeldata::((count k)#());
+        t:{$[0=k[x];labeldata[x]:(1 2)#(1;0);labeldata[x]:(1 2)#(0,1)]};
+        t each til count k};
+
+readlabels[lst];
 / prediction has one extra
 if[(count prediction) <> (count k1); prediction:prediction[til count k1]];
 temp:{tf[`nn.softmax_cross_entropy_with_logits;<;`logits pykw prediction[x];`labels pykw npar k1[x]]}each til count prediction;
@@ -225,5 +224,5 @@ predictiontest:trainnet each til count fintest;
 .p.eval"tf.get_default_graph().clear_collection('prediction')";
 tf[`add_to_collection;<;`prediction;predictiontest];
 xdata:fintest;
-labeldata:readlabels[lst];
+readlabels[lst];
 runepochs[]; / run once - test data - and evaluate accuracy
