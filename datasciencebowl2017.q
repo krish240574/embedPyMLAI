@@ -1,4 +1,5 @@
 / Data science bowl 2017 on kaggle - https://www.kaggle.com/c/data-science-bowl-2017
+/ this code runs with the sample image set. Have yet to run on entire set(1000+ patients)
 / Complete rewrite of code to read scan images -
 / Reading using read_file of pydicom returns a FileDataSet object
 / on passing to q, all data is clobbered
@@ -63,7 +64,6 @@ lst:system "ls ./input/sample_images"
 fin:{pd[x,"/"]}each lst;
 
 / ================== Neural net begins here ====================
-
 / Now on to the convolutional neural net - great reference page at -
 / https://en.wikipedia.org/wiki/Convolutional_neural_network
 / Simple conv net here , two conv3D layers, each activated using
@@ -128,7 +128,7 @@ prediction:trainnet each til count fin; / can safely average predictions here, d
 / Add to tf graph explicitly
 tf[`add_to_collection;<;`prediction;prediction];
 
-/ read labels from disk
+/ read labels from disk - for some reason, 1 is missing.
 readlabels:{[lst]
         lbl:("SI";enlist ",")0: `:stage1_labels.csv;
         lbl:select from lbl where id in `$lst;
@@ -136,29 +136,28 @@ readlabels:{[lst]
         labeldata::((count k)#());
         t:{$[0=k[x];labeldata[x]:(1 2)#(1;0);labeldata[x]:(1 2)#(0,1)]};
         t each til count k};
-
 readlabels[lst];
 / prediction has one extra
-if[(count prediction) <> (count k1); prediction:prediction[til count k1]];
-temp:{tf[`nn.softmax_cross_entropy_with_logits;<;`logits pykw prediction[x];`labels pykw npar k1[x]]}each til count prediction;
+if[(count prediction) <> (count labeldata); prediction:prediction[til count labeldata]];
+temp:{tf[`nn.softmax_cross_entropy_with_logits;<;`logits pykw prediction[x];`labels pykw npar labeldata[x]]}each til count prediction;
 cost:tf[`reduce_mean;<;temp];
 optimizer:opt[`minimize;*;cost]
 
-/ prediction and k1 are nested, so un-nest them
+/ prediction and labeldata are nested, so un-nest them
 prediction:((count prediction),2)#raze over getval each prediction;
-k1:((count k1),2)#raze over k1;
+labeldata:((count labeldata),2)#raze over labeldata;
 
 / Now to run the computation graph in a tf Session
 p)import tensorflow as tf
 sess:.p.eval"tf.Session()";
 sess[`run;<;.p.pyeval"tf.global_variables_initializer()"];
-if[(count fin) <> count k1; fin:fin[til count k1]]; / lose one image for now - the missing patient mystery
+if[(count fin) <> count labeldata; fin:fin[til count labeldata]]; / lose one image for now - the missing patient mystery
 / Split into training and validation sets 80-20 split
 ktmp:ceiling 0.8*count fin;
 fintrain:fin til ktmp;
 finvalidate:fin ktmp + til (count fin) - ktmp;
-k1train:k1 til ktmp;
-k1validate:k1 ktmp + til (count k1) - ktmp ;
+k1train:labeldata til ktmp;
+k1validate:labeldata ktmp + til (count labeldata) - ktmp ;
 
 p)x = tf.placeholder('float')
 p)y = tf.placeholder('float')
@@ -204,6 +203,7 @@ runepochs[];
 / Then, evaluate the predictions.
 / 50 test images
 lst:system "ls ./input/test_images"
+
 / Could drop the training set here, no need anymore?
 fin:();
 .Q.gc[];
@@ -223,6 +223,6 @@ predictiontest:trainnet each til count fintest;
 / dg[`clear_collection;<;`prediction];
 .p.eval"tf.get_default_graph().clear_collection('prediction')";
 tf[`add_to_collection;<;`prediction;predictiontest];
-xdata:fintest;
-readlabels[lst];
+xdata:fintest; / data
+readlabels[lst]; / labels
 runepochs[]; / run once - test data - and evaluate accuracy
