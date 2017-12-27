@@ -1,5 +1,4 @@
 / Data science bowl 2017 on kaggle - https://www.kaggle.com/c/data-science-bowl-2017
-/ this code runs with the sample image set. Have yet to run on entire set(1000+ patients)
 / Complete rewrite of code to read scan images -
 / Reading using read_file of pydicom returns a FileDataSet object
 / on passing to q, all data is clobbered
@@ -16,10 +15,12 @@ np:.p.import`numpy
 npar:{np[`array;>;x]};
 imgs:()
 fig:()
+counter:1;
 rsz:{cv:.p.import`cv2;tup:.p.eval"tuple([50,50])";:cv[`resize;<;npar x;tup`.]}
 pd:{
         show x;
         ret:0;
+        show counter;
         .p.set[`x;x];
         .p.set[`inp;"./input/sample_images/"];
         / read images from disk, (each directory contains multiple images, or slices)
@@ -29,6 +30,8 @@ pd:{
         / Get image pixel data
         tmp:.p.eval"[(slices[i].pixel_array) for i in np.arange(len(slices))]";
         imgs::tmp`;
+        show count imgs;
+        counter+:1;
 
         / 512x512 is too large - resize to 50,50
         / If null image , resize by force and don't call buggy cv2 resize()
@@ -54,13 +57,12 @@ pd:{
 /        plt:.p.import `matplotlib.pyplot;
 /        plt[`show;<][]
 /       }
-
+/ 75 images for now
 lst:system "ls ./input/sample_images"
-/ fin contains the pre-processed resized list of lists of slices
+/ fin will contain the pre-processed resized list of lists of slices
 fin:{pd[x,"/"]}each lst;
 
 / ================== Neural net begins here ====================
-
 / Now on to the convolutional neural net - great reference page at -
 / https://en.wikipedia.org/wiki/Convolutional_neural_network
 / Simple conv net here , two conv3D layers, each activated using
@@ -105,14 +107,13 @@ biases:(`bconv1;`bconv2;`bfc;`out)!(bconv1;bconv2;bfc;bout)
 / final - 20 images of 50, 50, 20 each
 / and typecast to float 32 to match "input" variable inside conv3d call - tensorflow requirements
 show count each fin;
-fin:{npar getval tf[`reshape;<;npar "e"$fin x;`shape pykw npar (-1;50;50;count fin x;1)]}each til count fin;
+reshape:{npar getval tf[`reshape;<;npar "e"$fin x;`shape pykw npar (-1;50;50;count fin x;1)]};
+fin:reshape each til count fin;
 
-/ opt:tf[`train.AdamOptimizer;<;`learning_rate pykw 0.001]
-p)import tensorflow as tf
-opt:.p.eval"tf.train.AdamOptimizer(learning_rate=0.001)";
+opt:tf[`train.AdamOptimizer;*;`learning_rate pykw 0.001]
 / this function trains the neural net on all the reshaped 3D images
 trainnet:{
-        l1:tf[`nn.conv3d;<;findata x;wts`wconv1;`strides pykw .p.pyeval"list([1,1,1,1,1])";`padding pykw `SAME];
+        l1:tf[`nn.conv3d;<;nndata x;wts`wconv1;`strides pykw .p.pyeval"list([1,1,1,1,1])";`padding pykw `SAME];
         l1:tf[`nn.max_pool3d;<;l1;`ksize pykw .p.pyeval"list([1,2,2,2,1])"; `strides pykw .p.pyeval"list([1,2,2,2,1])";`padding pykw `SAME];
         l2:tf[`nn.relu;<;tf[`nn.conv3d;<;l1;wts`wconv2;`strides pykw .p.pyeval"list([1,1,1,1,1])";`padding pykw `SAME]];
         l2:tf[`nn.max_pool3d;<;l2;`ksize pykw .p.pyeval"list([1,2,2,2,1])"; `strides pykw .p.pyeval"list([1,2,2,2,1])";`padding pykw `SAME];
@@ -121,47 +122,41 @@ trainnet:{
         fc:tf[`nn.dropout;<;fc;0.8];
         :tf[`matmul;<;fc;wts`out]
          }
+nndata:fin;
+prediction:trainnet each til count fin; / can safely average predictions here, doing so later anyways
+/ Add to tf graph explicitly
+tf[`add_to_collection;<;`prediction;prediction];
 
 / read labels from disk - for some reason, 1 is missing.
-lbl:("SI";enlist ",")0: `stage1_labels.csv
-lbl:select from lbl where id in `$lst;
-k:lbl`cancer;
-k1:((count k)#());
-t:{$[0=k[x];k1[x]:(1 2)#(1;0);k1[x]:(1 2)#(0,1)]}
-k1:t each til count k;
-/ k1 is nested - un-nest
-k1:((count k1),2)#raze over k1;
-/ One patient missing - so equalize count for now - will fix this
-if[(count fin) <> count k1; fin:fin til count k1];
-
-/ Split into training and validation sets 80-20 split
-ktmp:ceiling 0.8*count fin;
-fintrain:fin til ktmp;
-finvalidate:fin ktmp + til (count fin) - ktmp;
-k1train:k1 til ktmp;
-k1validate:k1 ktmp + til (count k1) - ktmp ;
-/ Run neural net on training data
-findata:fintrain;
-/ Since prediction needs to be part of the tf graph inside the
-/ python space, run it inside python
-.p.set[`trainnet;trainnet];
-.p.set[`findata;findata];
-p)prediction=[trainnet(i) for i in np.arange(len(findata))]
-prediction:(.p.get `prediction)`;
-prediction:((count prediction),2)#raze over getval each prediction;
-/ prediction:trainnet each til count findata;
-show "here";
-temp:tf[`nn.softmax_cross_entropy_with_logits;<;`logits pykw npar prediction;`labels pykw npar k1train]
-/ temp:{tf[`nn.softmax_cross_entropy_with_logits;<;`logits pykw npar prediction[x];`labels pykw npar k1train[x]]}each til count prediction;
+readlabels:{[lst]
+        lbl:("SI";enlist ",")0: `:stage1_labels.csv;
+        lbl:select from lbl where id in `$lst;
+        k::lbl`cancer;
+        labeldata::((count k)#());
+        t:{$[0=k[x];labeldata[x]:(1 2)#(1;0);labeldata[x]:(1 2)#(0,1)]};
+        t each til count k};
+readlabels[lst];
+/ prediction has one extra
+if[(count prediction) <> (count labeldata); prediction:prediction[til count labeldata]];
+temp:{tf[`nn.softmax_cross_entropy_with_logits;<;`logits pykw prediction[x];`labels pykw npar labeldata[x]]}each til count prediction;
 cost:tf[`reduce_mean;<;temp];
-show "here";
-/ Create optimizer node in tf graph
 optimizer:opt[`minimize;*;cost]
+
+/ prediction and labeldata are nested, so un-nest them
+prediction:((count prediction),2)#raze over getval each prediction;
+labeldata:((count labeldata),2)#raze over labeldata;
 
 / Now to run the computation graph in a tf Session
 p)import tensorflow as tf
 sess:.p.eval"tf.Session()";
 sess[`run;<;.p.pyeval"tf.global_variables_initializer()"];
+if[(count fin) <> count labeldata; fin:fin[til count labeldata]]; / lose one image for now - the missing patient mystery
+/ Split into training and validation sets 80-20 split
+ktmp:ceiling 0.8*count fin;
+fintrain:fin til ktmp;
+finvalidate:fin ktmp + til (count fin) - ktmp;
+k1train:labeldata til ktmp;
+k1validate:labeldata ktmp + til (count labeldata) - ktmp ;
 
 p)x = tf.placeholder('float')
 p)y = tf.placeholder('float')
@@ -170,29 +165,63 @@ p)y = tf.placeholder('float')
 .p.set[`cost;cost];
 / Lambda for evaluating accuracy
 evalacc:{[acc]
-        .p.set[`Xval;finvalidate[x]];
-        .p.set[`Yval;k1validate[x]];
+        .p.set[`Xval;finvalidate];
+        .p.set[`Yval;k1validate];
         .p.set[`accuracy;acc];
         show "Validation data accuracy :";
         acceval:.p.eval"accuracy.eval({x:Xval,y:Yval}, session=sess)";
         show acceval`};
 runsession:{
-        .p.set[`X;fintrain[x]];
-        .p.set[`Y;k1train[x]];
-        o:.p.eval"sess.run([optimizer, cost], feed_dict={x: X, y: Y})";
-        show (o`)1;
+        .p.set[`X;xdata[x]];
+        .p.set[`Y;labeldata[x]];
+         o:.p.eval"sess.run([tf.get_collection(\"prediction\"), optimizer, cost], feed_dict={x: X, y: Y})";
+        / Location 0 of the returned value contains predictions
+        / reshape, average and return
+        t:count raze (o`)0;
+        t:(t,2)#raze over (o`)0;
+        show avg t;
+        :avg t;
         };
 runepochs:{
-        runsession each til count fintrain;
-        / get prediction from py-universe each time
-        prediction:(.p.get`prediction)`;
-        prediction:((count prediction),2)#raze over getval each prediction;
-        correct:tf[`equal;<;tf[`argmax;<;npar prediction;npar 1];tf[`argmax;<;npar k1train;npar 1]];
+        prediction:runsession each til count xdata;
+        correct:tf[`equal;<;tf[`argmax;<;npar prediction;npar 1];tf[`argmax;<;npar labeldata;npar 1]];
         accuracy:tf[`reduce_mean;<;tf[`cast;<;correct;`float]];
-        evalacc[accuracy];
+        evalacc[accuracy] ;
         };
-show "Running for 3 epochs now...";
-runepochs each til 3;
-/ runepochs each til 50; / 50 epochs - 50 runs through the same data
-/ Final evaluate on validation data
-evalacc[]
+show "Training for 5 epochs now...";
+xdata:fintrain;
+labeldata:k1train;
+/ runepochs each til 5; / 5 epochs - 5 runs through the same data
+runepochs[];
+
+/ Now to handle the test data here
+/ Pre-process the test data first
+/ Build the graph using 'trainnet' to predict on test data
+/ Make sure to insert the predictions from this training into
+/ the graph using add_collection()
+/ Then, evaluate the predictions.
+/ 50 test images
+lst:system "ls ./input/test_images"
+
+/ Could drop the training set here, no need anymore?
+fin:();
+.Q.gc[];
+/ fintest will contain the pre-processed resized list of lists of slices
+fintest:{pd[x,"/"]}each lst;
+
+/ reshape
+fintest:reshape each til count fintest;
+
+/ train NN and get inferences/predictions
+nndata:fintest;
+predictiontest:trainnet each til count fintest;
+
+/ Add to tf graph explicitly, after cleaning up older collection
+/ embedPy returns a foreign here, can't use it to call clear_collection()
+/ dg:tf[`get_default_graph;<];
+/ dg[`clear_collection;<;`prediction];
+.p.eval"tf.get_default_graph().clear_collection('prediction')";
+tf[`add_to_collection;<;`prediction;predictiontest];
+xdata:fintest; / data
+readlabels[lst]; / labels
+runepochs[]; / run once - test data - and evaluate accuracy
