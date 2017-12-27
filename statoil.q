@@ -24,7 +24,7 @@ getModel:{
 
         / Layer 1
         gmodel:.p.eval"Sequential()";
-        gmodel[`add;<;layers[`Conv2D;<;64;pykwargs `kernel_size`activation`input_shape!(3 3;`relu;75 75 3)]];
+        gmodel[`add;<;layers[`Conv2D;<;64;pykwargs `kernel_size`activation`input_shape`data_format!(3 3;`relu;3 75 75;`channels_first)]];
         gmodel[`add;<;layers[`MaxPooling2D;<;pykwargs `pool_size`strides!(3 3;2 2)]] gmodel[`add;<;layers[`Dropout;<;0.2]];
 
         / Layer 2
@@ -67,12 +67,11 @@ getModel:{
         y:train`is_iceberg;
         splitdata:ms[`train_test_split;<;Xtrain;y;pykwargs `random_state`train_size`test_size!(1;0.75;0.25)];
         fnpar:{np[`array;>;x]};
-        kumar;
         train:();
         Xtrain:();
         .Q.gc[];
-        Xtraincv:fnpar ((75,75,3)#/:)flip (splitdata 0)[`band_1`band_2`band_3];
-        Xvalid::fnpar ((75,75,3)#/:)flip (splitdata 1)[`band_1`band_2`band_3];
+        Xtraincv:fnpar flip (splitdata 0)[`band_1`band_2`band_3];
+        Xvalid::fnpar flip (splitdata 1)[`band_1`band_2`band_3];
         Ytraincv:fnpar splitdata 2;
         Yvalid:fnpar splitdata 3;
         gmodel:getModel[];
