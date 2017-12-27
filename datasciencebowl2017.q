@@ -1,12 +1,3 @@
-/ Data science bowl 2017 on kaggle - https://www.kaggle.com/c/data-science-bowl-2017
-/ Complete rewrite of code to read scan images -
-/ Reading using read_file of pydicom returns a FileDataSet object
-/ on passing to q, all data is clobbered
-/ Hence this code, read inside python and pick only relevant(image pixel data)
-/ and pass to q
-
-p)import os
-p)import numpy as np
 p)import dicom
 p)import matplotlib.pyplot as plt
 np:.p.import`numpy
@@ -40,14 +31,26 @@ pd:{
         / then average each block into one image each.
         numslices:20;
         chunksize:ceiling((count imgs)%numslices);
-        taken:(t where (count imgs)>t:chunksize*til numslices) _ imgs;
+        cutexp:(t where (count imgs)>t:chunksize*til numslices);
+        taken:cutexp _ imgs;
         tmp:last taken;
         / Make the last block = chunksize
-        l: (((first count each taken)-count tmp)#) over tmp;
+        diffexp:(((first count each taken)-count tmp)#);
+        l: diffexp over tmp;
         taken[-1+count taken]:tmp,l;
-        / Need to make all blocks of size 20  - some are 18, some 19
-        taken:taken,(numslices-count taken)#taken;
+
+        / When one firsst splits into slices, some images are
+        / discarded at the end, this fixes that
+        extra:-1+(count imgs) - last cutexp;
+        tmp::imgs ((count imgs)-extra)+til extra;
+        / Create a new chunk of size chunksize from the discarded images here
+        tmp::tmp,l:diffexp over tmp;
+
+        / Need to make all blocks of size 20 slices - some are 18, some 19
+        if[numslices>count taken;taken:taken,((numslices-count taken),chunksize)#tmp];
         / Now average images over blocks
+        show (count taken);
+        show count each taken;
         newvals:avg each raze each ''taken;
         :newvals}
  / Now to plot all resized images as a grid - uncomment if you want to see the grid
@@ -57,12 +60,13 @@ pd:{
 /        plt:.p.import `matplotlib.pyplot;
 /        plt[`show;<][]
 /       }
-/ 75 images for now
+/ 25 images for now
 lst:system "ls ./input/sample_images"
 / fin will contain the pre-processed resized list of lists of slices
 fin:{pd[x,"/"]}each lst;
 
 / ================== Neural net begins here ====================
+
 / Now on to the convolutional neural net - great reference page at -
 / https://en.wikipedia.org/wiki/Convolutional_neural_network
 / Simple conv net here , two conv3D layers, each activated using
@@ -74,7 +78,7 @@ fin:{pd[x,"/"]}each lst;
 / moves over the source image, with a window(also called filter) as the lens
 / the movements are decided by the "strides" parameter
 
-/ Create a conv 3D layer, with dimemsion(5x5x5) filters, compute 32 features
+/ Create a conv 3D layer, with dimemsion(3x3x3) filters, compute 32 features
 / Pass those 32 predictions to another conv 3D layer, with dimension(5x5x5) filters, compute 64 features
 / pass those 64 predictions to a dense(fully-connected) layer
 / Import tensorflow here and then begin:
