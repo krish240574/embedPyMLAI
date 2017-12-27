@@ -2,8 +2,8 @@
 np:.p.import `numpy
 npar:{np[`array;<;x]};
 train:.j.k (read0 `:train.json )0;
-band1:(npar (75,75)#/:) train`band_1;
-band2:(npar (75,75)#/:) train`band_2;
+band1:(npar (75,75,3)#/:) train`band_1;
+band2:(npar (75,75,3)#/:) train`band_2;
 
 Xtrain:flip `band_1`band_2`band_3!(npar band1;npar band2;npar (band1+band2)%2);
 show "Data reading done...";
@@ -24,7 +24,7 @@ getModel:{
 
         / Layer 1
         gmodel:.p.eval"Sequential()";
-        gmodel[`add;<;layers[`Conv2D;<;64;pykwargs `kernel_size`activation`input_shape`data_format!(3 3;`relu;3 75 75;`channels_first)]];
+        gmodel[`add;<;layers[`Conv2D;<;64;pykwargs `kernel_size`activation`input_shape!(3 3;`relu;75 75 3)]];
         gmodel[`add;<;layers[`MaxPooling2D;<;pykwargs `pool_size`strides!(3 3;2 2)]] gmodel[`add;<;layers[`Dropout;<;0.2]];
 
         / Layer 2
@@ -70,9 +70,12 @@ getModel:{
         train:();
         Xtrain:();
         .Q.gc[];
+        kumar;
         Xtraincv:fnpar flip (splitdata 0)[`band_1`band_2`band_3];
         Xvalid::fnpar flip (splitdata 1)[`band_1`band_2`band_3];
         Ytraincv:fnpar splitdata 2;
+        / Training here
+        show "Training commences ...";
         Yvalid:fnpar splitdata 3;
         gmodel:getModel[];
         gmodel[`fit;<;Xtraincv;Ytraincv;pykwargs `batch_size`epochs`verbose`validation_data!(24;50;1;(Xvalid;Yvalid))]
