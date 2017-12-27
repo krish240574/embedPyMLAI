@@ -2,8 +2,8 @@
 np:.p.import `numpy
 npar:{np[`array;<;x]};
 train:.j.k (read0 `:train.json )0;
-band1:(npar (75,75,3)#/:) train`band_1;
-band2:(npar (75,75,3)#/:) train`band_2;
+band1:(npar (75,75)#/:) train`band_1;
+band2:(npar (75,75)#/:) train`band_2;
 
 Xtrain:flip `band_1`band_2`band_3!(npar band1;npar band2;npar (band1+band2)%2);
 show "Data reading done...";
@@ -67,12 +67,11 @@ getModel:{
         y:train`is_iceberg;
         splitdata:ms[`train_test_split;<;Xtrain;y;pykwargs `random_state`train_size`test_size!(1;0.75;0.25)];
         fnpar:{np[`array;>;x]};
-        train:();
-        Xtrain:();
-        .Q.gc[];
         kumar;
-        Xtraincv:fnpar flip (splitdata 0)[`band_1`band_2`band_3];
-        Xvalid::fnpar flip (splitdata 1)[`band_1`band_2`band_3];
+        t:flip (splitdata 0)[`band_1`band_2`band_3];
+        Xtraincv:fnpar ((count t),75,75,3)#raze over t;
+        t:flip (splitdata 1)[`band_1`band_2`band_3];
+        Xvalid:fnpar ((count t),75,75,3)#raze over t;
         Ytraincv:fnpar splitdata 2;
         / Training here
         show "Training commences ...";
