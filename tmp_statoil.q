@@ -4,12 +4,16 @@ npar:{np[`array;<;x]};
 fnpar:{np[`array;>;x]};
 train:.j.k (read0 `:train.json )0;
 band1:(npar (75,75)#/:) train`band_1;
+fband1:npar flip each band1;
 band2:(npar (75,75)#/:) train`band_2;
+fband2:npar flip each band2;
+band3:(band1+band2)%2;
+fband3:npar flip each band3;
 
-Xtrain:flip `band_1`band_2`band_3!(npar band1;npar band2;npar (band1+band2)%2);
+Xtrain:flip `band_1`band_2`band_3!(npar band1,fband1;npar band2,fband2;npar band3,fband3);
 / Maybe add more data, by flipping images?
-t:flip `band_1`band_2`band_3!flip each 'Xtrain[`band_1`band_2`band_3];
-Xtrain:Xtrain,t;
+/ t:flip `band_1`band_2`band_3!flip each 'Xtrain[`band_1`band_2`band_3];
+/ Xtrain:Xtrain,t;
 
 show "Data reading done...";
 
@@ -90,6 +94,11 @@ show "Training commences ...";
 Yvalid:fnpar splitdata 3;
 gmodel:getModel[];
 gmodel[`fit;<;Xtraincv;Ytraincv;pykwargs `batch_size`epochs`verbose`validation_data!(24;50;1;(Xvalid;Yvalid))];
+
+/ Evaluate
+scores:gmodel[`evaluate;<;Xvalid;Yvalid;`verbose pykw 1];
+show "Scores:";
+show scores;
 
 / Test data preprocessing here
 show "Preprocessing test data now...";
