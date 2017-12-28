@@ -1,6 +1,7 @@
 \l p.q
 np:.p.import `numpy
 npar:{np[`array;<;x]};
+fnpar:{np[`array;>;x]};
 train:.j.k (read0 `:train.json )0;
 band1:(npar (75,75)#/:) train`band_1;
 band2:(npar (75,75)#/:) train`band_2;
@@ -33,11 +34,21 @@ getModel:{
         gmodel[`add;<;layers[`Dropout;<;0.2]];
 
         /Layer 3
-        gmodel[`add;<;layers[`Conv2D;<;128;pykwargs `kernel_size`activation!(3 3;`relu)]];
-        gmodel[`add;<;layers[`MaxPooling2D;<;pykwargs `pool_size`strides!(2 2;2 2)]];
+        gmodel[`add;<;layers[`Conv2D;<;64;pykwargs `kernel_size`activation!(2 2;`relu)]];
+        gmodel[`add;<;layers[`MaxPooling2D;<;pykwargs `pool_size`strides!(1 1;1 1)]];
         gmodel[`add;<;layers[`Dropout;<;0.2]];
 
         /Layer 4
+        gmodel[`add;<;layers[`Conv2D;<;64;pykwargs `kernel_size`activation!(2 2;`relu)]];
+        gmodel[`add;<;layers[`MaxPooling2D;<;pykwargs `pool_size`strides!(1 1;1 1)]];
+        gmodel[`add;<;layers[`Dropout;<;0.2]];
+
+        /Layer 5
+        gmodel[`add;<;layers[`Conv2D;<;64;pykwargs `kernel_size`activation!(3 3;`relu)]];
+        gmodel[`add;<;layers[`MaxPooling2D;<;pykwargs `pool_size`strides!(2 2;2 2)]];
+        gmodel[`add;<;layers[`Dropout;<;0.2]];
+
+        /Layer 6
         gmodel[`add;<;layers[`Conv2D;<;64;pykwargs `kernel_size`activation!(3 3;`relu)]];
         gmodel[`add;<;layers[`MaxPooling2D;<;pykwargs `pool_size`strides!(2 2;2 2)]];
         gmodel[`add;<;layers[`Dropout;<;0.2]];
@@ -64,17 +75,26 @@ getModel:{
         gmodel[`summary;<];
         :gmodel};
 
-        y:train`is_iceberg;
-        splitdata:ms[`train_test_split;<;Xtrain;y;pykwargs `random_state`train_size`test_size!(1;0.75;0.25)];
-        fnpar:{np[`array;>;x]};
-        kumar;
-        t:flip (splitdata 0)[`band_1`band_2`band_3];
-        Xtraincv:fnpar ((count t),75,75,3)#raze over t;
-        t:flip (splitdata 1)[`band_1`band_2`band_3];
-        Xvalid:fnpar ((count t),75,75,3)#raze over t;
-        Ytraincv:fnpar splitdata 2;
-        / Training here
-        show "Training commences ...";
-        Yvalid:fnpar splitdata 3;
-        gmodel:getModel[];
-        gmodel[`fit;<;Xtraincv;Ytraincv;pykwargs `batch_size`epochs`verbose`validation_data!(24;50;1;(Xvalid;Yvalid))]
+y:train`is_iceberg;
+splitdata:ms[`train_test_split;<;Xtrain;y;pykwargs `random_state`train_size`test_size!(1;0.75;0.25)];
+t:flip (splitdata 0)[`band_1`band_2`band_3];
+Xtraincv:fnpar ((count t),75,75,3)#raze over t;
+t:flip (splitdata 1)[`band_1`band_2`band_3];
+Xvalid:fnpar ((count t),75,75,3)#raze over t;
+Ytraincv:fnpar splitdata 2;
+Yvalid:fnpar splitdata 3;
+/ Training here
+show "Training commences ...";
+gmodel:getModel[];
+gmodel[`fit;<;Xtraincv;Ytraincv;pykwargs `batch_size`epochs`verbose`validation_data!(24;50;1;(Xvalid;Yvalid))];
+
+/ Test data preprocessing here
+show "Preprocessing test data now...";
+test:.j.k (read0 `:test.json )0;
+testband1:(npar (75,75)#/:) test`band_1;
+testband2:(npar (75,75)#/:) test`band_2;
+
+Xtest:flip `band_1`band_2`band_3!(npar testband1;npar testband2;npar (testband1+testband2)%2);
+Xtest:((count Xtest),75,75,3)#raze over Xtest;
+preds:gmodel[`predict_proba;<;Xtest;`verbose pykw 1];
+
