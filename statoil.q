@@ -88,6 +88,11 @@ show "Training commences ...";
 gmodel:getModel[];
 gmodel[`fit;<;Xtraincv;Ytraincv;pykwargs `batch_size`epochs`verbose`validation_data!(24;50;1;(Xvalid;Yvalid))];
 
+/ Evaluate
+scores:gmodel[`evaluate;<;Xvalid;Yvalid;`verbose pykw 1];
+show "Scores:";
+show scores;
+
 / Test data preprocessing here
 show "Preprocessing test data now...";
 test:.j.k (read0 `:test.json )0;
@@ -95,9 +100,12 @@ testband1:(npar (75,75)#/:) test`band_1;
 testband2:(npar (75,75)#/:) test`band_2;
 
 Xtest:flip `band_1`band_2`band_3!(npar testband1;npar testband2;npar (testband1+testband2)%2);
-Xtest:((count Xtest),75,75,3)#raze over Xtest;
+Xtest:fnpar ((count Xtest),75,75,3)#raze over Xtest;
+/ .p.set[`Xtest;Xtest]
+/ .p.set[`gmodel;gmodel]
+/ p)preds = gmodel.predict_proba(Xtest,verbose=1)
+show "Running test, predicting...";
 preds:gmodel[`predict_proba;<;Xtest;`verbose pykw 1];
-
 show "Generating submission file...";
 .p.set[`preds;fnpar preds]
 .p.set[`id;fnpar test`id]
@@ -107,4 +115,5 @@ p)submission['id']=id;
 p)submission['is_iceberg']=preds.reshape((preds.shape[0]));
 p)submission.to_csv('sub.csv', index=False)
 show "Done !";
+
 
