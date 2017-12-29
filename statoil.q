@@ -98,3 +98,13 @@ Xtest:flip `band_1`band_2`band_3!(npar testband1;npar testband2;npar (testband1+
 Xtest:((count Xtest),75,75,3)#raze over Xtest;
 preds:gmodel[`predict_proba;<;Xtest;`verbose pykw 1];
 
+show "Generating submission file...";
+.p.set[`preds;fnpar preds]
+.p.set[`id;fnpar test`id]
+p)import pandas as pd
+p)submission = pd.DataFrame();
+p)submission['id']=id;
+p)submission['is_iceberg']=preds.reshape((preds.shape[0]));
+p)submission.to_csv('sub.csv', index=False)
+show "Done !";
+
