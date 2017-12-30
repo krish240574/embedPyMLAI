@@ -1,3 +1,13 @@
+/ Data science bowl 2017 on kaggle - https://www.kaggle.com/c/data-science-bowl-2017
+/ this code runs with the sample image set. Have yet to run on entire set(1000+ patients)
+/ Complete rewrite of code to read scan images -
+/ Reading using read_file of pydicom returns a FileDataSet object
+/ on passing to q, all data is clobbered
+/ Hence this code, read inside python and pick only relevant(image pixel data)
+/ and pass to q
+
+p)import os
+p)import numpy as np
 p)import dicom
 p)import matplotlib.pyplot as plt
 np:.p.import`numpy
@@ -6,11 +16,12 @@ np:.p.import`numpy
 npar:{np[`array;>;x]};
 imgs:()
 fig:()
-counter:1;
+counter:0;
 rsz:{cv:.p.import`cv2;tup:.p.eval"tuple([50,50])";:cv[`resize;<;npar x;tup`.]}
 pd:{
         show x;
         ret:0;
+        show "Counter:";
         show counter;
         .p.set[`x;x];
         .p.set[`inp;"./input/sample_images/"];
@@ -65,6 +76,8 @@ lst:system "ls ./input/sample_images"
 / fin will contain the pre-processed resized list of lists of slices
 fin:{pd[x,"/"]}each lst;
 
+/ fin:pd["04a3187ec2ed4198a25033071897bffc/"];
+
 / ================== Neural net begins here ====================
 
 / Now on to the convolutional neural net - great reference page at -
@@ -117,7 +130,7 @@ fin:reshape each til count fin;
 opt:tf[`train.AdamOptimizer;*;`learning_rate pykw 0.001]
 / this function trains the neural net on all the reshaped 3D images
 trainnet:{
-        l1:tf[`nn.conv3d;<;nndata x;wts`wconv1;`strides pykw .p.pyeval"list([1,1,1,1,1])";`padding pykw `SAME];
+ l1:tf[`nn.conv3d;<;nndata x;wts`wconv1;`strides pykw .p.pyeval"list([1,1,1,1,1])";`padding pykw `SAME];
         l1:tf[`nn.max_pool3d;<;l1;`ksize pykw .p.pyeval"list([1,2,2,2,1])"; `strides pykw .p.pyeval"list([1,2,2,2,1])";`padding pykw `SAME];
         l2:tf[`nn.relu;<;tf[`nn.conv3d;<;l1;wts`wconv2;`strides pykw .p.pyeval"list([1,1,1,1,1])";`padding pykw `SAME]];
         l2:tf[`nn.max_pool3d;<;l2;`ksize pykw .p.pyeval"list([1,2,2,2,1])"; `strides pykw .p.pyeval"list([1,2,2,2,1])";`padding pykw `SAME];
