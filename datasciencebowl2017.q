@@ -21,8 +21,6 @@ rsz:{cv:.p.import`cv2;tup:.p.eval"tuple([50,50])";:cv[`resize;<;npar x;tup`.]}
 pd:{
         show x;
         ret:0;
-        show "Counter:";
-        show counter;
         .p.set[`x;x];
         .p.set[`inp;"./input/sample_images/"];
         / read images from disk, (each directory contains multiple images, or slices)
@@ -33,7 +31,6 @@ pd:{
         tmp:.p.eval"[(slices[i].pixel_array) for i in np.arange(len(slices))]";
         imgs::tmp`;
         show count imgs;
-        counter+:1;
 
         / 512x512 is too large - resize to 50,50
         / If null image , resize by force and don't call buggy cv2 resize()
