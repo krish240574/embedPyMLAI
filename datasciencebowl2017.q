@@ -17,12 +17,15 @@ npar:{np[`array;>;x]};
 imgs:()
 fig:()
 counter:0;
+path:"";
 rsz:{cv:.p.import`cv2;tup:.p.eval"tuple([50,50])";:cv[`resize;<;npar x;tup`.]}
 pd:{
         show x;
         ret:0;
+        show "Counter:";
+        show counter;
         .p.set[`x;x];
-        .p.set[`inp;"./input/sample_images/"];
+        .p.set[`inp;"./input",path];
         / read images from disk, (each directory contains multiple images, or slices)
         .p.set[`slices;.p.pyeval"[dicom.read_file(inp+x+s) for s in os.listdir(inp+x)]"];
         / Sort(in-place) by image position
@@ -31,6 +34,7 @@ pd:{
         tmp:.p.eval"[(slices[i].pixel_array) for i in np.arange(len(slices))]";
         imgs::tmp`;
         show count imgs;
+        counter+::1;
 
         / 512x512 is too large - resize to 50,50
         / If null image , resize by force and don't call buggy cv2 resize()
@@ -71,6 +75,7 @@ pd:{
 / 25 images for now
 lst:system "ls ./input/sample_images"
 / fin will contain the pre-processed resized list of lists of slices
+path:"/sample_images/";
 fin:{pd[x,"/"]}each lst;
 
 / fin:pd["04a3187ec2ed4198a25033071897bffc/"];
@@ -127,7 +132,7 @@ fin:reshape each til count fin;
 opt:tf[`train.AdamOptimizer;*;`learning_rate pykw 0.001]
 / this function trains the neural net on all the reshaped 3D images
 trainnet:{
- l1:tf[`nn.conv3d;<;nndata x;wts`wconv1;`strides pykw .p.pyeval"list([1,1,1,1,1])";`padding pykw `SAME];
+        l1:tf[`nn.conv3d;<;nndata x;wts`wconv1;`strides pykw .p.pyeval"list([1,1,1,1,1])";`padding pykw `SAME];
         l1:tf[`nn.max_pool3d;<;l1;`ksize pykw .p.pyeval"list([1,2,2,2,1])"; `strides pykw .p.pyeval"list([1,2,2,2,1])";`padding pykw `SAME];
         l2:tf[`nn.relu;<;tf[`nn.conv3d;<;l1;wts`wconv2;`strides pykw .p.pyeval"list([1,1,1,1,1])";`padding pykw `SAME]];
         l2:tf[`nn.max_pool3d;<;l2;`ksize pykw .p.pyeval"list([1,2,2,2,1])"; `strides pykw .p.pyeval"list([1,2,2,2,1])";`padding pykw `SAME];
@@ -215,12 +220,14 @@ runepochs[];
 / the graph using add_collection()
 / Then, evaluate the predictions.
 / 50 test images
-lst:system "ls ./input/test_images"
+lst:system "ls ./input/test_images";
 
 / Could drop the training set here, no need anymore?
 fin:();
 .Q.gc[];
 / fintest will contain the pre-processed resized list of lists of slices
+counter:0;
+path:"/test_images/";
 fintest:{pd[x,"/"]}each lst;
 
 / reshape
