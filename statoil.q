@@ -5,18 +5,18 @@ fnpar:{np[`array;>;x]};
 
 train:.j.k (read0 `:train.json )0;
 
-/band1:(npar (75,75)#/:) train`band_1;
-/band2:(npar (75,75)#/:) train`band_2;
-/Xtrain:flip `band_1`band_2`band_3!(npar band1;npar band2;npar (band1+band2)%2);
+band1:(npar (75,75)#/:) train`band_1;
+band2:(npar (75,75)#/:) train`band_2;
+Xtrain:flip `band_1`band_2`band_3!(npar band1;npar band2;npar (band1+band2)%2);
 
 / This code adds extra training data, by flipping the existing images
-band1:(npar (75,75)#/:) train`band_1;
-fband1:npar flip each band1;
-band2:(npar (75,75)#/:) train`band_2;
-fband2:npar flip each band2;
-band3:(band1+band2)%2;
-fband3:npar flip each band3;
-Xtrain:flip `band_1`band_2`band_3!(npar band1,fband1;npar band2,fband2;npar band3,fband3);
+/band1:(npar (75,75)#/:) train`band_1;
+/fband1:npar flip each band1;
+/band2:(npar (75,75)#/:) train`band_2;
+/fband2:npar flip each band2;
+/band3:(band1+band2)%2;
+/fband3:npar flip each band3;
+/Xtrain:flip `band_1`band_2`band_3!(npar band1,fband1;npar band2,fband2;npar band3,fband3);
 
 show "Data reading done...";
 
@@ -48,6 +48,14 @@ getModel:{
         gmodel[`add;<;layers[`Conv2D;<;128;pykwargs `kernel_size`activation!(3 3;`relu)]];
         gmodel[`add;<;layers[`MaxPooling2D;<;pykwargs `pool_size`strides!(2 2;2 2)]];
         gmodel[`add;<;layers[`Dropout;<;0.2]];
+        / Layer 3
+        gmodel[`add;<;layers[`Conv2D;<;128;pykwargs `kernel_size`activation!(2 2;`relu)]];
+        gmodel[`add;<;layers[`MaxPooling2D;<;pykwargs `pool_size`strides!(1 1;1 1)]];
+        gmodel[`add;<;layers[`Dropout;<;0.2]];
+        / Layer 3
+        gmodel[`add;<;layers[`Conv2D;<;128;pykwargs `kernel_size`activation!(2 2;`relu)]];
+        gmodel[`add;<;layers[`MaxPooling2D;<;pykwargs `pool_size`strides!(1 1;1 1)]];
+        gmodel[`add;<;layers[`Dropout;<;0.2]];
 
         /Layer 4
         gmodel[`add;<;layers[`Conv2D;<;64;pykwargs `kernel_size`activation!(3 3;`relu)]];
@@ -56,7 +64,7 @@ getModel:{
 
         / Flatten
         / Have to .p.eval or I get TypeError: "The added layer must be an instance of class Layer. Found: <class 'keras.layers.core.Flatten'>"
-        gmodel[`add;<;.p.eval"Flatten()"];
+ gmodel[`add;<;.p.eval"Flatten()"];
 
         /Dense layer 1
         gmodel[`add;<;layers[`Dense;<;512]];
@@ -77,7 +85,7 @@ getModel:{
         :gmodel};
 
 y:train`is_iceberg;
-y:y,y; /extra data now
+/y:y,y; /extra data now
 
 / Split into train and validate sets
 splitdata:ms[`train_test_split;<;Xtrain;y;pykwargs `random_state`train_size`test_size!(1;0.75;0.25)];
