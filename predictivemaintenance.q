@@ -20,4 +20,4 @@ show (key fbad) ! f;
 / One-hot encode all categorical columns
 ds:d;
 f:{show x;s:onehot[x;ds];cs:string cols s;cs:"," sv cs;cs:ssr[cs;" ";"-"];cs:"," vs cs;cs[where 0= count each " " = cs]:"E";cs:`$((string x),"_"),/: cs;ds::delete x from ds;ds::ds,'flip t:cs!(s cols s)};
-f each ds;
+f each cd;
