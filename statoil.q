@@ -1,10 +1,14 @@
+/ Statoil competition at Kaggle - https://www.kaggle.com/c/statoil-iceberg-classifier-challenge/
+
 \l p.q
 np:.p.import `numpy
 npar:{np[`array;<;x]};
 fnpar:{np[`array;>;x]};
+/ Data is in json
 show "Reading data..."
 train:.j.k (read0 `:train.json )0;
 
+/ Use HH and HV data, and create a 3rd column, for RGB - 3 channels
 band1:(npar (75,75)#/:) train`band_1;
 band2:(npar (75,75)#/:) train`band_2;
 Xtrain:flip `band_1`band_2`band_3!(npar band1;npar band2;npar (band1+band2)%2);
@@ -32,6 +36,15 @@ p)from keras.callbacks import ModelCheckpoint, Callback, EarlyStopping
 
 p)l = list(['accuracy']);
 l:.p.get`l;
+
+/ Callback stuff - still testing ***
+getCallbacks:{[filepath;patience]
+        .p.set[`filepath;filepath];
+        .p.set[`patience;patience];
+        es:.p.pyeval"EarlyStopping('val_loss', patience=patience, mode=\"min\")";
+        msave:.p.pyeval"ModelCheckpoint(filepath, save_best_only=True)";
+        :(es;msave)};
+
 getModel:{
         / Start with Sequential(), then keep add[]ing to it.
 
@@ -100,8 +113,19 @@ Yvalid:fnpar splitdata 3;
 / Training here
 show "Training commences ...";
 gmodel:getModel[];
+
+/ Callback stuff - still testing ***
+/filepath:raze string "model_weights.hdf5";
+/callbacks:getCallbacks[filepath;5];
+/.p.set[`es;callbacks 0 ];
+/.p.set[`msave;callbacks 1];
+
+/ Callback stuff - still testing ***
 / gmodel[`fit;<;Xtraincv;Ytraincv;`callbacks pykw .p.pyeval "list(callbacks)";pykwargs `batch_size`epochs`verbose`validation_data!(24;50;1;(Xvalid;Yvalid))];
+
+/ Fit data and train here
 gmodel[`fit;<;Xtraincv;Ytraincv;pykwargs `batch_size`epochs`verbose`validation_data!(24;50;1;(Xvalid;Yvalid))];
+
 /.p.set[`gmodel;gmodel];
 /.p.set[`Xtraincv;Xtraincv];
 /.p.set[`Ytraincv;Ytraincv];
@@ -109,8 +133,10 @@ gmodel[`fit;<;Xtraincv;Ytraincv;pykwargs `batch_size`epochs`verbose`validation_d
 /.p.set[`Yvalid;Yvalid];
 /p)gmodel.fit(Xtraincv,Ytraincv,callbacks=list([es,msave]),batch_size=24,epochs=50,verbose=1,validation_data=(Xvalid,Yvalid));
 
+/ Callback stuff - still testing ***
 / Load the best weights
 / gmodel[`load_weights;`filepath pykw filepath]
+
 / Evaluate
 scores:gmodel[`evaluate;<;Xvalid;Yvalid;`verbose pykw 1];
 show "Scores:";
@@ -125,10 +151,12 @@ testband2:(npar (75,75)#/:) test`band_2;
 Xtest:flip `band_1`band_2`band_3!(npar testband1;npar testband2;npar (testband1+testband2)%2);
 Xtest:((count Xtest),75,75,3)#raze over Xtest;
 Xtest:fnpar Xtest;
-show "Running test, predicting...";
 
+/ Predictions here
+show "Running test, predicting...";
 preds:gmodel[`predict_proba;<;Xtest;`verbose pykw 1];
 
+/ Generate submission file for Kaggle
 show "Generating submission file...";
 .p.set[`preds;fnpar preds]
 .p.set[`id;fnpar test`id]
