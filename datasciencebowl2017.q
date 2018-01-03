@@ -5,12 +5,12 @@
 / on passing to q, all data is clobbered
 / Hence this code, read inside python and pick only relevant(image pixel data)
 / and pass to q
-
 p)import os
 p)import numpy as np
 p)import dicom
 p)import matplotlib.pyplot as plt
 np:.p.import`numpy
+
 / Utility method to get a foeign pointer to n-dim arrays
 / Workaround for the tuple problem - ndim arrays get converted to tuples (n>1)
 npar:{np[`array;>;x]};
@@ -19,6 +19,7 @@ fig:()
 counter:0;
 path:"";
 rsz:{cv:.p.import`cv2;tup:.p.eval"tuple([50,50])";:cv[`resize;<;npar x;tup`.]}
+/ Preprocessing function - all images are read, sorted and resized here
 pd:{
         show x;
         ret:0;
@@ -39,6 +40,7 @@ pd:{
         / 512x512 is too large - resize to 50,50
         / If null image , resize by force and don't call buggy cv2 resize()
         ret:{$[0=(sum/) imgs[x];imgs[x]::(50,50)#100;imgs[x]::rsz imgs[x]]}each til count imgs;
+
         / Now to chunk each directory of images into blocks of ((count imgs)%20)
         / then average each block into one image each.
         numslices:20;
@@ -46,6 +48,7 @@ pd:{
         cutexp:(t where (count imgs)>t:chunksize*til numslices);
         taken:cutexp _ imgs;
         tmp:last taken;
+
         / Make the last block = chunksize
         diffexp:(((first count each taken)-count tmp)#);
         l: diffexp over tmp;
@@ -55,16 +58,19 @@ pd:{
         / discarded at the end, this fixes that
         extra:-1+(count imgs) - last cutexp;
         tmp::imgs ((count imgs)-extra)+til extra;
+
         / Create a new chunk of size chunksize from the discarded images here
         tmp::tmp,l:diffexp over tmp;
 
         / Need to make all blocks of size 20 slices - some are 18, some 19
         if[numslices>count taken;taken:taken,((numslices-count taken),chunksize)#tmp];
+
         / Now average images over blocks
         show (count taken);
         show count each taken;
         newvals:avg each raze each ''taken;
         :newvals}
+
  / Now to plot all resized images as a grid - uncomment if you want to see the grid
 /        fig::.p.eval"plt.figure()";
 /        k:{(.p.wrap fig[`add_subplot;<;4;5;x+1])[`imshow;<;newvals x;`cmap pykw `gray]}each til count newvals;
@@ -72,11 +78,13 @@ pd:{
 /        plt:.p.import `matplotlib.pyplot;
 /        plt[`show;<][]
 /       }
+show "Reading images from disk and preprocessing...";
 / 25 images for now
-lst:system "ls ./input/sample_images"
+lst:system "ls ./input/sample_images";
 / fin will contain the pre-processed resized list of lists of slices
 path:"/sample_images/";
 fin:{pd[x,"/"]}each lst;
+show "Images pre-processed and resized...";
 
 / fin:pd["04a3187ec2ed4198a25033071897bffc/"];
 
@@ -103,7 +111,7 @@ keras:.p.import `keras.backend;
 / Utility method to get a value inside a TensorFlow object
 getval:{keras[`get_value;<;x]}
 / Utility method for tf.Variable
-tfvar:{tf:.p.import `tensorflow;tf[`Variable;>;x]};
+tfvar:{tf[`Variable;>;x]};
 
 / Initialise all weights and biases as tenforflow tensors
 / of correct dimensions
@@ -125,11 +133,13 @@ biases:(`bconv1;`bconv2;`bfc;`out)!(bconv1;bconv2;bfc;bout)
 / original dimensions - 20, 50, 50(20 blocks of 50x50 each)
 / final - 20 images of 50, 50, 20 each
 / and typecast to float 32 to match "input" variable inside conv3d call - tensorflow requirements
-show count each fin;
 reshape:{npar getval tf[`reshape;<;npar "e"$fin x;`shape pykw npar (-1;50;50;count fin x;1)]};
 fin:reshape each til count fin;
+show "Images resized to 3D - to suit NN...";
 
+/ Use Adam Optimizer
 opt:tf[`train.AdamOptimizer;*;`learning_rate pykw 0.001]
+
 / this function trains the neural net on all the reshaped 3D images
 trainnet:{
         l1:tf[`nn.conv3d;<;nndata x;wts`wconv1;`strides pykw .p.pyeval"list([1,1,1,1,1])";`padding pykw `SAME];
@@ -143,7 +153,8 @@ trainnet:{
          }
 nndata:fin;
 prediction:trainnet each til count fin; / can safely average predictions here, doing so later anyways
-/ Add to tf graph explicitly
+
+/ Add predictions to tf graph explicitly
 tf[`add_to_collection;<;`prediction;prediction];
 
 / read labels from disk - for some reason, 1 is missing.
@@ -155,8 +166,11 @@ readlabels:{[lst]
         t:{$[0=k[x];labeldata[x]:(1 2)#(1;0);labeldata[x]:(1 2)#(0,1)]};
         t each til count k};
 readlabels[lst];
+
 / prediction has one extra
 if[(count prediction) <> (count labeldata); prediction:prediction[til count labeldata]];
+
+/ Add softmax cross entropy as loss function
 temp:{tf[`nn.softmax_cross_entropy_with_logits;<;`logits pykw prediction[x];`labels pykw npar labeldata[x]]}each til count prediction;
 cost:tf[`reduce_mean;<;temp];
 optimizer:opt[`minimize;*;cost]
@@ -168,8 +182,12 @@ labeldata:((count labeldata),2)#raze over labeldata;
 / Now to run the computation graph in a tf Session
 p)import tensorflow as tf
 sess:.p.eval"tf.Session()";
+/ This initializes all the weights and biases defined above
 sess[`run;<;.p.pyeval"tf.global_variables_initializer()"];
-if[(count fin) <> count labeldata; fin:fin[til count labeldata]]; / lose one image for now - the missing patient mystery
+
+/ lose one image for now - the missing patient mystery
+if[(count fin) <> count labeldata; fin:fin[til count labeldata]];
+
 / Split into training and validation sets 80-20 split
 ktmp:ceiling 0.8*count fin;
 fintrain:fin til ktmp;
@@ -177,11 +195,13 @@ finvalidate:fin ktmp + til (count fin) - ktmp;
 k1train:labeldata til ktmp;
 k1validate:labeldata ktmp + til (count labeldata) - ktmp ;
 
+/ Ready data and variables for session.Run()
 p)x = tf.placeholder('float')
 p)y = tf.placeholder('float')
 .p.set[`sess;sess];
 .p.set[`optimizer;optimizer]
 .p.set[`cost;cost];
+
 / Lambda for evaluating accuracy
 evalacc:{[acc]
         .p.set[`Xval;finvalidate];
@@ -220,8 +240,8 @@ runepochs[];
 / the graph using add_collection()
 / Then, evaluate the predictions.
 / 50 test images
+show "Preprocessing test images now...";
 lst:system "ls ./input/test_images";
-
 / Could drop the training set here, no need anymore?
 fin:();
 .Q.gc[];
@@ -232,6 +252,7 @@ fintest:{pd[x,"/"]}each lst;
 
 / reshape
 fintest:reshape each til count fintest;
+show "Predictions now...";
 
 / train NN and get inferences/predictions
 nndata:fintest;
@@ -241,6 +262,7 @@ predictiontest:trainnet each til count fintest;
 / embedPy returns a foreign here, can't use it to call clear_collection()
 / dg:tf[`get_default_graph;<];
 / dg[`clear_collection;<;`prediction];
+
 .p.eval"tf.get_default_graph().clear_collection('prediction')";
 tf[`add_to_collection;<;`prediction;predictiontest];
 xdata:fintest; / data
