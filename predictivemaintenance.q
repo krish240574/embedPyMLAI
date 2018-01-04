@@ -32,4 +32,19 @@ q)ds:rul,'ds
 lbl:([]lbl:20>d`rul)
 q)ds:lbl,'ds
 
+/ Now remove one-hot encoded columns with occurence of 1 >50% 
+q)cds:cols ds
+q)fc:(cols d) where "F"=colStr
+q)cds:cds where not cds in fc
+q)dd:ds cds
+q)dss: sum each dd 2+til (-4+count dd)
+q)tss:dss%count ds
+wtss:where (tss>0.7) and (tss<1)
+q)wtss+:2 / readjust for 2+til (-4+count dd) above
+q)tds:flip (cds wtss) ! ds cds wtss
+tds:tds,'flip fc!ds fc;
+tds:([]dt:ds`dt),'tds
+/ Need to get rid of d and ds here, too much memory leakage !
+
+
 
