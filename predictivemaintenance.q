@@ -24,3 +24,12 @@ f each cd;
 / Delete all categorical columns from original table
 ds:![ds;();0b;cd];
 
+/ Create RUL and label columns here
+firstbad:first first each where each `Bad = fbad;
+g:neg ("Z"$d[til firstbad]`dt) - "Z"$d[firstbad]`dt
+rul:([]rul:g,((count d) - (count g))#0f)
+q)ds:rul,'ds
+lbl:([]lbl:20>d`rul)
+q)ds:lbl,'ds
+
+
