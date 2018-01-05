@@ -16,7 +16,7 @@ cd:cd where not cd in `dt,(cols d) where "F" = colStr;
 / For now - don't use this, too complex
 cd:cd where not cd in `TotalPowerConsumption;
 ccd:d cd;
-/ Find where `Bad happens, in each categorical column, 
+/ Find where `Bad happens, in each categorical column,
 / then calculate time to failure
 wcd:cd where 0< sum each `Bad = ccd;
 bad:ccd where 0< sum each `Bad = ccd;
@@ -35,10 +35,10 @@ firstbad:first first each where each `Bad = fbad;
 g:neg ("Z"$d[til firstbad]`dt) - "Z"$d[firstbad]`dt
 rul:([]rul:g,((count d) - (count g))#0f)
 q)ds:rul,'ds
-lbl:([]lbl:20>d`rul)
+lbl:([]lbl:20>rul`rul)
 q)ds:lbl,'ds
 
-/ Now remove one-hot encoded columns with occurence of 1 >50% 
+/ Now remove one-hot encoded columns with occurence of 1 >50%
 q)cds:cols ds
 q)fc:(cols d) where "F"=colStr
 q)cds:cds where not cds in fc
@@ -49,8 +49,9 @@ wtss:where (tss>0.7) and (tss<1)
 q)wtss+:2 / readjust for 2+til (-4+count dd) above
 q)tds:flip (cds wtss) ! ds cds wtss
 tds:tds,'flip fc!ds fc;
-tds:([]dt:ds`dt),'tds
+tds:([]dt:ds`dt),'([]rul:ds`rul),'([]lbl:ds`lbl),'tds;
 / Need to get rid of d and ds here, too much memory leakage !
+
 
 
 
