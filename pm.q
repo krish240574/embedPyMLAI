@@ -48,4 +48,4 @@ tmp:(flip d floatCols )group d`id
 / Generate sequences for LSTM
 / 50-row windows for each id
 seq:({(til -50+count x),'(50 + til (-50+count x))}':) tmp
-seqw:({v:(value seq) -1+x;(tmp x) (v[;0]+til each v[;1])}':) 1+til count tmp
+seqw:({v:(value seq) -1+x;(tmp x) (v[;0]+\:til 50)}':) 1+til count tmp
