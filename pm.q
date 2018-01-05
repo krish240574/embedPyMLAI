@@ -40,3 +40,12 @@ s:(normalize ':) (flip d floatCols;flip t floatCols)
 / Reconstruct training and testing
 d:(flip (`id`cycle`rul`lbl1`lbl2)!d`id`cycle`rul`lbl1`lbl2),'flip floatCols !flip (s 0 )`
 t:(flip (`id`cycle`rul`lbl1`lbl2)!t`id`cycle`rul`lbl1`lbl2),'flip floatCols !flip (s 1 )`
+
+
+/ LSTM preps
+/ Group by id and get only floatCols
+tmp:(flip d floatCols )group d`id
+/ Generate sequences for LSTM
+/ 50-row windows for each id
+seq:({(til -50+count x),'(50 + til (-50+count x))}':) tmp
+seqw:({v:(value seq) -1+x;(tmp x) (v[;0]+til each v[;1])}':) 1+til count tmp
