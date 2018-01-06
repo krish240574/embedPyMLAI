@@ -5,11 +5,9 @@ p)import os
 p)import numpy as np
 p)import dicom
 p)import matplotlib.pyplot as plt
-np:.p.import`numpy
-
-/ Utility method to get a foeign pointer to n-dim arrays
 / Workaround for the tuple problem - ndim arrays get converted to tuples (n>1)
-npar:{np[`array;>;x]};
+npar:.p.import[`numpy;`array;>];
+/ Preprocessing code here.
 imgs:()
 fig:()
 counter:0;
