@@ -30,11 +30,14 @@ q)t:([]lbl2:(t`rul)<=15),'t
 
 \l p.q
 npar:.p.import [`numpy;`array;>];
-pd:.p.import`pandas;
-pre:.p.import`sklearn.preprocessing;
-mms:pre[`MinMaxScaler;*][]; / Instantiate - notice the [] - that returns an object
+pd:.p.import[`pandas;`DataFrame;*];
+/ pre:.p.import[`sklearn;`preprocessing;*];
+q)pre:.p.import `sklearn.preprocessing
+
+mms:pre[`MinMaxScaler;*][];
+
 / Normalize training and test data
-normalize:{[df] df:pd[`DataFrame;*][npar df];mms[`fit_transform;<;df]};
+normalize:{[df] df:pd[npar df];mms[`fit_transform;<;df]};
 / Get only sensor value columns
 s:(normalize ':) (flip d floatCols;flip t floatCols)
 / Reconstruct training and testing
