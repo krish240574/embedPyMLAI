@@ -1,10 +1,6 @@
 / Data science bowl 2017 on kaggle - https://www.kaggle.com/c/data-science-bowl-2017
 / this code runs with the sample image set. Have yet to run on entire set(1000+ patients)
-/ Complete rewrite of code to read scan images -
-/ Reading using read_file of pydicom returns a FileDataSet object
-/ on passing to q, all data is clobbered
-/ Hence this code, read inside python and pick only relevant(image pixel data)
-/ and pass to q
+
 p)import os
 p)import numpy as np
 p)import dicom
