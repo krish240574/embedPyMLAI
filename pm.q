@@ -22,7 +22,6 @@ vgt:value gt
 q)cycle:([]cycle:(tr`remcycles)+vgt`cycle)
 q)vgt:delete cycle from vgt
 q)vgt:cycle,'vgt
-
 rul:([]rul:raze (vgt`cycle) - (t`cycle )value git)
 t:rul,'t;
 q)t:lbl1:([]lbl1:(t`rul)<=30),'t
@@ -32,9 +31,9 @@ q)t:([]lbl2:(t`rul)<=15),'t
 npar:.p.import [`numpy;`array;>];
 pd:.p.import[`pandas;`DataFrame;*];
 / pre:.p.import[`sklearn;`preprocessing;*];
-q)pre:.p.import `sklearn.preprocessing
-
-mms:pre[`MinMaxScaler;*][];
+/ q)pre:.p.import `sklearn.preprocessing
+mms:.p.import[`sklearn;`preprocessing;`MinMaxScaler;*][];
+/ mms:pre[`MinMaxScaler;*][];
 
 / Normalize training and test data
 normalize:{[df] df:pd[npar df];mms[`fit_transform;<;df]};
@@ -43,7 +42,6 @@ s:(normalize ':) (flip d floatCols;flip t floatCols)
 / Reconstruct training and testing
 d:(flip (`id`cycle`rul`lbl1`lbl2)!d`id`cycle`rul`lbl1`lbl2),'flip floatCols !flip (s 0 )
 t:(flip (`id`cycle`rul`lbl1`lbl2)!t`id`cycle`rul`lbl1`lbl2),'flip floatCols !flip (s 1 )
-
 
 / LSTM preps
 / Group by id and get only floatCols
