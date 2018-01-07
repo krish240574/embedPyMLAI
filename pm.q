@@ -55,3 +55,7 @@ tmp:(flip d floatCols )group d`id
 seq:({(til -50+count x),'(50 + til (-50+count x))}':) tmp
 seqw:({v:(value seq) -1+x;(tmp x) (v[;0]+\:til 50)}':) 1+til count tmp
 r:raze seqw;
+
+dl:(d`lbl1)group d`id;
+ce:count each dl;
+dl:raze over value (ce-50)# '(d`lbl1)group d`id;
