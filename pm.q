@@ -52,10 +52,12 @@ t:(flip (`id`cycle`rul`lbl1`lbl2)!t`id`cycle`rul`lbl1`lbl2),'flip floatCols !fli
 tmp:(flip d floatCols )group d`id
 / Generate sequences for LSTM
 / 50-row windows for each id
-seq:({(til -50+count x),'(50 + til (-50+count x))}':) tmp
-seqw:({v:(value seq) -1+x;(tmp x) (v[;0]+\:til 50)}':) 1+til count tmp
-r:raze seqw;
+/ seq:({(til -50+count x),'(50 + til (-50+count x))}':) tmp
+seqw:({v:(til(-50+count tmp x))+\:til 50;(tmp x) v}':)key tmp;
+/ seqw:({v:seq x;(tmp x) (v[;0]+\:til 50)}':) 1+til count tmp
+r:raze seqw; /15631,50,25
 
 dl:(d`lbl1)group d`id;
 ce:count each dl;
-dl:raze over value (ce-50)# '(d`lbl1)group d`id;
+dl:raze over value (ce-50)# '(d`lbl1)group d`id; / 15631,1
+.Q.gc[];
