@@ -10,6 +10,7 @@ rul:([]rul:raze (vgd`cycle) - (d`cycle )value gid)
 d:rul,'d;
 q)d:lbl1:([]lbl1:(d`rul)<=30),'d
 q)d:([]lbl2:(d`rul)<=15),'d
+d:([]cyclenorm:d`cycle),'d;
 
 / Read truth data first and then use
 tr:([]remcycles:"I"$read0 `:PM_truth.txt);
@@ -26,15 +27,17 @@ rul:([]rul:raze (vgt`cycle) - (t`cycle )value git)
 t:rul,'t;
 q)t:lbl1:([]lbl1:(t`rul)<=30),'t
 q)t:([]lbl2:(t`rul)<=15),'t
+t:([]cyclenorm:t`cycle),'t;
 
 \l p.q
 npar:.p.import [`numpy;`array;>];
 pd:.p.import[`pandas;`DataFrame;*];
 / pre:.p.import[`sklearn;`preprocessing;*];
-/ q)pre:.p.import `sklearn.preprocessing
-mms:.p.import[`sklearn;`preprocessing;`MinMaxScaler;*][];
-/ mms:pre[`MinMaxScaler;*][];
+pre:.p.import `sklearn.preprocessing
+mms:pre[`MinMaxScaler;*][];
 
+/ mms:.p.import[`sklearn;`preprocessing;`MinMaxScaler;*][];
+floatCols,:`cyclenorm;
 / Normalize training and test data
 normalize:{[df] df:pd[npar df];mms[`fit_transform;<;df]};
 / Get only sensor value columns
@@ -43,6 +46,7 @@ s:(normalize ':) (flip d floatCols;flip t floatCols)
 d:(flip (`id`cycle`rul`lbl1`lbl2)!d`id`cycle`rul`lbl1`lbl2),'flip floatCols !flip (s 0 )
 t:(flip (`id`cycle`rul`lbl1`lbl2)!t`id`cycle`rul`lbl1`lbl2),'flip floatCols !flip (s 1 )
 
+
 / LSTM preps
 / Group by id and get only floatCols
 tmp:(flip d floatCols )group d`id
@@ -50,3 +54,4 @@ tmp:(flip d floatCols )group d`id
 / 50-row windows for each id
 seq:({(til -50+count x),'(50 + til (-50+count x))}':) tmp
 seqw:({v:(value seq) -1+x;(tmp x) (v[;0]+\:til 50)}':) 1+til count tmp
+r:raze seqw;
