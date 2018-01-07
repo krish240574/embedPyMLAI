@@ -35,6 +35,7 @@ pd:{
         / If null image , resize by force and don't call buggy cv2 resize()
         ret:{$[0=(sum/) imgs[x];imgs[x]::(50,50)#100;imgs[x]::rsz imgs[x]]}each til count imgs;
 
+        / TODO - Need to refactor this code into a new function - too much code here. 
         / Now to chunk each directory of images into blocks of ((count imgs)%20)
         / then average each block into one image each.
         numslices:20;
