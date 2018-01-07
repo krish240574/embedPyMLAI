@@ -7,3 +7,4 @@ statoil.q - Statoil competition at Kaggle - https://www.kaggle.com/c/statoil-ice
 predictivemaintenance.q - Australian Water Corp. data analysis for predictive maintenance of their water system - https://ministryofdata.org.au/mod-2017-hackathon-problems/wc-pr11-predictive-pumps-pipes-maintenance/ - In progress, building RUL and label columns from unlabelled data. 
 
 2sigma_regression.q - Two Sigma Financial Modelling challenge - https://www.kaggle.com/c/two-sigma-financial-modeling - Linear regression.
+pm.q - LSTM for predictive maintenance. 
