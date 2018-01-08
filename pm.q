@@ -46,23 +46,14 @@ s:(normalize ':) (flip d floatCols;flip t floatCols)
 d:(flip (`id`cycle`rul`lbl1`lbl2)!d`id`cycle`rul`lbl1`lbl2),'flip floatCols !flip (s 0 )
 t:(flip (`id`cycle`rul`lbl1`lbl2)!t`id`cycle`rul`lbl1`lbl2),'flip floatCols !flip (s 1 )
 
-
 / LSTM preps
 / Group by id and get only floatCols
 tmp:(flip d floatCols )group d`id / Id- wise grouping and indexing
 / Generate sequences for LSTM
-/ 50-row windows for each id
-/ seq:({(til -50+count x),'(50 + til (-50+count x))}':) tmp
-
 seqw:({v:(til(-50+count tmp x))+\:til 50;:(tmp x) v}':);
 r:raze seqw key tmp; /15631,50,25
-
-/ seqw:({v:seq x;(tmp x) (v[;0]+\:til 50)}':) 1+til count tmp
-/ r:raze seqw;
-
-dl:(d`lbl1)group d`id;
-ce:count each dl;
-dl:raze over value (ce-50)# '(d`lbl1)group d`id; / 15631,1
+/ Same for labels, too
+dl:(d`lbl1)group d`id;ce:count each dl;dl:raze over value (ce-50)# '(d`lbl1)group d`id; / 15631,1
 .Q.gc[]
 
 / LSTM network here
