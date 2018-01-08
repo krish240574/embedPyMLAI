@@ -60,9 +60,9 @@ r:raze seqw key tmp; /15631,50,25
 / seqw:({v:seq x;(tmp x) (v[;0]+\:til 50)}':) 1+til count tmp
 / r:raze seqw;
 
-dl:(d`lbl1)group d`id;
-ce:count each dl;
-dl:raze over value (ce-50)# 'dl; / 15631,1
+dl:reverse each (d`lbl1)group d`id;
+cdl:count each dl;
+dl:raze over reverse each (cdl-50) # 'dl;
 .Q.gc[]
 
 / LSTM network here
@@ -82,15 +82,17 @@ model[`compile;<;pykwargs `loss`optimizer!(`binary_crossentropy`adam)];
 model[`summary;<][];
 model[`fit;<;npar r;npar dl;pykwargs `epochs`batch_size`validation_split`verbose!(10;200;0.05;1)]
 model[`evaluate;<;npar r;npar dl;pykwargs `verbose`batch_size!(1;200)]
-ypreds:model[predict_classes;<;npar r;`verbose pykw 1]
+ypreds:model[`predict_classes;<;npar r;`verbose pykw 1]
 tmp:(flip t floatCols )group t`id; / Id- wise grouping and indexing
 rt:last each seqw (key tmp) where 50 <= value count each tmp; / take last sequence of each id for testing - meaning, last cycle for each id
 
-tl:(t`lbl1)group t`id;
+tl:reverse each (t`lbl1)group t`id;
 tle:count each tl;
 kt:(key tle) where 50 <= value tle ;
 q)g:kt! (tle kt)
-tl:raze over last each value (g-50)#'tl kt;
+tl:last each reverse each g #' tl kt
+/ tl:raze over last each value (50+til (g-50))#'tl kt;
+tl:((count tl),1)#tl;
 
-scorestest:model[`evaluate;npar rt;npar tl;`verbose pykw 2]
+scorestest:model[`evaluate;<;npar rt;npar tl;`verbose pykw 2]
 show scorestest;
