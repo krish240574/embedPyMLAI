@@ -79,7 +79,7 @@ ypreds:model[predict_classes;<;npar r;`verbose pykw 1]
 tmp:(flip t floatCols )group t`id; / Id- wise grouping and indexing
 rt:last each seqw (key tmp) where 50 <= value count each tmp; / Only for cycles >= 50 in length
 / Same for labels, in test data
-tl:(t`lbl1)group t`id;tle:count each tl;kt:(key tle) where 50 <= value tle;g:kt! (tle kt);tl:raze over value (g-50)#'tl kt;
+tl:(t`lbl1)group t`id;tle:count each tl;kt:(key tle) where 50 <= value tle;g:kt! (tle kt);tl:raze over last each value (g-50)#'tl kt;
 
 
 
