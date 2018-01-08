@@ -8,8 +8,8 @@ gid:group d`id;
 vgd:value gd
 rul:([]rul:raze (vgd`cycle) - (d`cycle )value gid)
 d:rul,'d;
-q)d:lbl1:([]lbl1:(d`rul)<=30),'d
-q)d:([]lbl2:(d`rul)<=15),'d
+d:lbl1:([]lbl1:(d`rul)<=30),'d
+d:([]lbl2:(d`rul)<=15),'d
 d:([]cyclenorm:d`cycle),'d;
 
 / Read truth data first and then use
@@ -20,13 +20,13 @@ t:(colStr;enlist " ")0: `:PM_test.txt;
 gt:select by id from t;
 git:group t`id;
 vgt:value gt
-q)cycle:([]cycle:(tr`remcycles)+vgt`cycle)
-q)vgt:delete cycle from vgt
-q)vgt:cycle,'vgt
+cycle:([]cycle:(tr`remcycles)+vgt`cycle)
+vgt:delete cycle from vgt
+vgt:cycle,'vgt
 rul:([]rul:raze (vgt`cycle) - (t`cycle )value git)
 t:rul,'t;
-q)t:lbl1:([]lbl1:(t`rul)<=30),'t
-q)t:([]lbl2:(t`rul)<=15),'t
+t:lbl1:([]lbl1:(t`rul)<=30),'t
+t:([]lbl2:(t`rul)<=15),'t
 t:([]cyclenorm:t`cycle),'t;
 
 \l p.q
@@ -49,15 +49,40 @@ t:(flip (`id`cycle`rul`lbl1`lbl2)!t`id`cycle`rul`lbl1`lbl2),'flip floatCols !fli
 
 / LSTM preps
 / Group by id and get only floatCols
-tmp:(flip d floatCols )group d`id
+tmp:(flip d floatCols )group d`id / Id- wise grouping and indexing
 / Generate sequences for LSTM
 / 50-row windows for each id
 / seq:({(til -50+count x),'(50 + til (-50+count x))}':) tmp
-seqw:({v:(til(-50+count tmp x))+\:til 50;(tmp x) v}':)key tmp;
+
+seqw:({v:(til(-50+count tmp x))+\:til 50;:(tmp x) v}':);
+r:raze seqw key tmp; /15631,50,25
+
 / seqw:({v:seq x;(tmp x) (v[;0]+\:til 50)}':) 1+til count tmp
-r:raze seqw; /15631,50,25
+/ r:raze seqw;
 
 dl:(d`lbl1)group d`id;
 ce:count each dl;
 dl:raze over value (ce-50)# '(d`lbl1)group d`id; / 15631,1
-.Q.gc[];
+.Q.gc[]
+
+/ LSTM network here
+nf:count seqw[0][0][0]; / 25
+nout:count dl[0]; / 1
+models:.p.import`keras.models;
+layers:.p.import`keras.layers;
+model:models[`Sequential;*][]; / Instantiating an object here
+
+model[`add;<;layers[`LSTM;<;pykwargs `input_shape`units`return_sequences!((50;nf);100;1)]];
+model[`add;<;layers[`Dropout;<;0.2]];
+model[`add;<;layers[`LSTM;<;pykwargs `units`return_sequences!(50;0)]];
+model[`add;<;layers[`Dropout;<;0.2]];
+model[`add;<;layers[`Dense;<;pykwargs `units`activation!(nout;`sigmoid)]];
+
+model[`compile;<;pykwargs `loss`optimizer!(`binary_crossentropy`adam)];
+model[`summary;<][];
+model[`fit;<;npar r;npar dl;pykwargs `epochs`batch_size`validation_split`verbose!(10;200;0.05;1)]
+model[`evaluate;<;npar r;npar dl;pykwargs `verbose`batch_size"(1;200)]
+ypreds:model[predict_classes;<;npar r;`verbose pykw 1]
+
+tmp:(flip t floatCols )group t`id; / Id- wise grouping and indexing
+rt:last each seqw (key tmp) where 50 <= value count each tmp; / take last sequence of each id for testing - meaning, last cycle for each id
