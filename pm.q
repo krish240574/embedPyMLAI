@@ -84,5 +84,12 @@ model[`fit;<;npar r;npar dl;pykwargs `epochs`batch_size`validation_split`verbose
 model[`evaluate;<;npar r;npar dl;pykwargs `verbose`batch_size"(1;200)]
 ypreds:model[predict_classes;<;npar r;`verbose pykw 1]
 
+/ test data - take last sequence of each id for testing - meaning, last cycle for each id
 tmp:(flip t floatCols )group t`id; / Id- wise grouping and indexing
-rt:last each seqw (key tmp) where 50 <= value count each tmp; / take last sequence of each id for testing - meaning, last cycle for each id
+rt:last each seqw (key tmp) where 50 <= value count each tmp; / Only for cycles >= 50 in length
+/ Same for labels, in test data
+tl:(t`lbl1)group t`id;tle:count each tl;kt:(key tle) where 50 <= value tle;g:kt! (tle kt);tl:raze over value (g-50)#'tl kt;
+
+
+
+
