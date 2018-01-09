@@ -79,9 +79,10 @@ ypreds:model[`predict_classes;<;npar r;`verbose pykw 1]
 
 / Now to handle the test set
 tmp:(flip t floatCols )group t`id; / Id- wise grouping and indexing
-/ rt:last each seqw (key tmp) where 50 <= value count each tmp; / take last sequence of each id for testing - meaning, last cycle for each id
-rt:seqw (key tmp) where 50 <= value count each tmp; / take last sequence of each id for testing - meaning, last cycle for each id
-rt:(raze rt) (key tmp) where 50 <= value count each tmp
+kt:(key tmp) where 50 <= value count each tmp;
+rt:seqw kt; / take last sequence of each id for testing - meaning, last cycle for each id
+rt:((count rt),50,25)#raze over last each rt;
+
 
 tl:reverse each (t`lbl1)group t`id;
 tle:count each tl;
