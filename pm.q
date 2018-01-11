@@ -57,7 +57,6 @@ tmp:(flip d floatCols )group d`id / Id- wise grouping and indexing
 / Generate sequences for LSTM
 / 50-row windows for each id
 / seqw:({v:(til(-50+count tmp x))+\:til 50;:(tmp x) v}':);
-/ Added code for the case where count is 50 or 51
 seqw:({k:-50+count tmp x;if[0=k or 1=k;k+:1];v:(til k)+\:til 50;:(tmp x) v}':);
 r:raze seqw key tmp; /15631,50,25
 
@@ -84,8 +83,12 @@ model[`summary;<][];
 / Train LSTM with training set
 model[`fit;<;npar r;npar dl;pykwargs `epochs`batch_size`validation_split`verbose!(1;200;0.05;1)]
 / Evaluate with training set
+show "Evaluating with training set...";
 scores:model[`evaluate;<;npar r;npar dl;pykwargs `verbose`batch_size!(1;200)]
+show "Training evaluation score:";
+show scores;
 / Make predictions with test set
+show "Predicting using training set...";
 ypreds:model[`predict_classes;<;npar r;`verbose pykw 1]
 metrics:.p.import `sklearn.metrics;
 show "Precision Score:";
@@ -110,14 +113,15 @@ g:kt! (tle kt)
 tl:last each reverse each g #' tl kt
 tl:((count tl),1)#value tl;
 
-/ Evaluate with test set
+show "Evaluating using test set...";
 scorestest:model[`evaluate;<;npar rt;npar tl;`verbose pykw 2]
+show "Test evaluation score:";
 show scorestest;
 
 / Predict using test set
+show "Predicting using test set...";
 ytpreds:model[`predict_classes;<;npar rt;`verbose pykw 1]
 show "Test Precision Score:";
 show metrics[`precision_score;<;npar tl;npar ytpreds];
 show "Test Recall Score:";
 show metrics[`recall_score;<;npar tl;npar ytpreds];
-
