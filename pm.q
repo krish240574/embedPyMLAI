@@ -21,7 +21,6 @@ d:([]cyclenorm:d`cycle),'d;
 tr:([]remcycles:"I"$read0 `:PM_truth.txt);
 
 / Testing data
-/ Add RUL and labels to test dataset
 t:(colStr;enlist " ")0: `:PM_test.txt;
 gt:select by id from t;
 git:group t`id;
@@ -29,6 +28,7 @@ vgt:value gt;
 cycle:([]cycle:(tr`remcycles)+vgt`cycle);
 vgt:delete cycle from vgt;
 vgt:cycle,'vgt;
+/ Add RUL and labels to test dataset
 rul:([]rul:raze (vgt`cycle) - (t`cycle )value git);
 t:rul,'t;
 t:lbl1:([]lbl1:(t`rul)<=30),'t;
@@ -38,7 +38,6 @@ t:([]cyclenorm:t`cycle),'t;
 / Normalize training and test data
 npar:.p.import [`numpy;`array;>];
 pd:.p.import[`pandas;`DataFrame;*];
-/ pre:.p.import[`sklearn;`preprocessing;*];
 pre:.p.import `sklearn.preprocessing
 mms:pre[`MinMaxScaler;*][];
 floatCols,:`cyclenorm; / Add a column "cyclenorm"
@@ -95,7 +94,6 @@ show "Precision Score:";
 show metrics[`precision_score;<;npar dl;npar ypreds];
 show "Recall Score:";
 show metrics[`recall_score;<;npar dl;npar ypreds];
-
 
 / Now to handle the test set
 tmp:(flip t floatCols )group t`id; / Id- wise grouping and indexing
