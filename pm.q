@@ -113,3 +113,11 @@ tl:((count tl),1)#value tl;
 / Evaluate with test set
 scorestest:model[`evaluate;<;npar rt;npar tl;`verbose pykw 2]
 show scorestest;
+
+/ Predict using test set
+ytpreds:model[`predict_classes;<;npar rt;`verbose pykw 1]
+show "Test Precision Score:";
+show metrics[`precision_score;<;npar tl;npar ytpreds];
+show "Test Recall Score:";
+show metrics[`recall_score;<;npar tl;npar ytpreds];
+
