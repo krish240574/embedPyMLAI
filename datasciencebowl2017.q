@@ -104,7 +104,8 @@ tf:.p.import `tensorflow
 keras:.p.import `keras.backend;
 
 / Utility method to get a value inside a TensorFlow object
-getval:{keras[`get_value;<;x]}
+getval:.p.import[`keras;`backend;`get_value;<]; / returns a q object/value
+
 / Utility method for tf.Variable
 tfvar:{tf[`Variable;>;x]};
 
