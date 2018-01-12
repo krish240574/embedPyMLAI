@@ -63,6 +63,8 @@ goodbye
 
 *** if a method returns a foreign and one wants to access its methods, .p.wrap the foreign and then access methods. 
 **** In order to bring a python object and access its methods inside q, use an embedPy object, via either .p.import, .p.get or .p.eval, r .p.wrap. An embedPy object is effectively the representation of a python object inside q, with behaviour just like in the python world. 
+**** Once an embedPy object is created, one can either access attributes, or call methods and get q objects 
+*** therefore, from foreign->embedPy->q.??
 
 
 
