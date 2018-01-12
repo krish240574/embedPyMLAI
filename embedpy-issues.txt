@@ -61,5 +61,9 @@ q)stderr:.p.import[`sys;`stderr.write;*]
 q)stderr"goodbye\n";
 goodbye
 
+*** if a method returns a foreign and one wants to access its methods, .p.wrap the foreign and then access methods. 
+
+
+
 
 
