@@ -19,10 +19,10 @@ pd:{
         ret:0;
         show "Counter:";
         show counter;
-        .p.set[`x;x];
+        .p.set[`fx;x];
         .p.set[`inp;"./input",path];
         / read images from disk, (each directory contains multiple images, or slices)
-        .p.set[`slices;.p.pyeval"[dicom.read_file(inp+x+s) for s in os.listdir(inp+x)]"];
+        .p.set[`slices;.p.pyeval"[dicom.read_file(inp+fx+s) for s in os.listdir(inp+fx)]"];
         / Sort(in-place) by image position
         .p.eval"slices.sort(key = lambda x: int(x.ImagePositionPatient[2]))";
         / Get image pixel data
@@ -35,7 +35,7 @@ pd:{
         / If null image , resize by force and don't call buggy cv2 resize()
         ret:{$[0=(sum/) imgs[x];imgs[x]::(50,50)#100;imgs[x]::rsz imgs[x]]}each til count imgs;
 
-        / TODO - Need to refactor this code into a new function - too much code here. 
+        / TODO - Need to refactor this code into a new function - too much code here.
         / Now to chunk each directory of images into blocks of ((count imgs)%20)
         / then average each block into one image each.
         numslices:20;
@@ -66,7 +66,7 @@ pd:{
         newvals:avg each raze each ''taken;
         :newvals}
 
- / Now to plot all resized images as a grid - uncomment if you want to see the grid
+/ Now to plot all resized images as a grid - uncomment if you want to see the grid
 /        fig::.p.eval"plt.figure()";
 /        k:{(.p.wrap fig[`add_subplot;<;4;5;x+1])[`imshow;<;newvals x;`cmap pykw `gray]}each til count newvals;
 /        k[];
@@ -128,8 +128,8 @@ biases:(`bconv1;`bconv2;`bfc;`out)!(bconv1;bconv2;bfc;bout)
 / original dimensions - 20, 50, 50(20 blocks of 50x50 each)
 / final - 20 images of 50, 50, 20 each
 / and typecast to float 32 to match "input" variable inside conv3d call - tensorflow requirements
-reshape:{npar getval tf[`reshape;<;npar "e"$fin x;`shape pykw npar (-1;50;50;count fin x;1)]};
-fin:reshape each til count fin;
+reshape:{npar getval tf[`reshape;<;npar "e"$findata x;`shape pykw npar (-1;50;50;count findata x;1)]};
+fin:reshape each til count findata:fin;
 show "Images resized to 3D - to suit NN...";
 
 / Use Adam Optimizer
@@ -197,11 +197,11 @@ p)y = tf.placeholder('float')
 .p.set[`optimizer;optimizer]
 .p.set[`cost;cost];
 
-/ Lambda for evaluating accuracy
+/ Function for evaluating accuracy
 evalacc:{[acc]
         .p.set[`Xval;finvalidate];
         .p.set[`Yval;k1validate];
-        .p.set[`accuracy;acc];
+ .p.set[`accuracy;acc];
         show "Validation data accuracy :";
         acceval:.p.eval"accuracy.eval({x:Xval,y:Yval}, session=sess)";
         show acceval`};
@@ -246,7 +246,7 @@ path:"/test_images/";
 fintest:{pd[x,"/"]}each lst;
 
 / reshape
-fintest:reshape each til count fintest;
+fintest:reshape each til count findata:fintest;
 show "Predictions now...";
 
 / train NN and get inferences/predictions
@@ -262,4 +262,6 @@ predictiontest:trainnet each til count fintest;
 tf[`add_to_collection;<;`prediction;predictiontest];
 xdata:fintest; / data
 readlabels[lst]; / labels
+q)labeldata:((count xdata),2)#raze over labeldata
+
 runepochs[]; / run once - test data - and evaluate accuracy
