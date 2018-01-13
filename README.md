@@ -20,8 +20,8 @@ npar:.p.import[\`numpy;`array;* or < or >] - returns a embedPy, q or foreign(pyt
 ## The callable, pycallable or qcallable is implicit on usage of the [] in the above call, it automatically happens. 
 
 ## The above is equivalent to 
-np:.p.import `numpy
-npar:.p.callable np`array; / or qcallable or pycallable
+np:.p.import \`numpy
+npar:.p.callable np\`array; / or qcallable or pycallable
 
 ## Can also be used as 
 np:.p.import`numpy;
