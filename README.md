@@ -47,35 +47,63 @@ df[<appropriate object>]; / instantiation happens here with value passed
 
 ### Chaining embedpy objects 
 q)np:.p.import\`numpy
+
 q)v:np[`arange;*;12]
+
 q)v`
+
 0 1 2 3 4 5 6 7 8 9 10 11
+
 q)v[`mean;<][]
+
 5.5
+
 q)rs:v[`reshape;<]
+
 q)rs[3;4]
+
 0 1 2  3 
+
 4 5 6  7 
+
 8 9 10 11
+
 q)rs[2;6]
+
 0 1 2 3 4  5 
+
 6 7 8 9 10 11
+
 q)np[`arange;*;12][`reshape;*;3;4]`
+
 0 1 2  3 
+
 4 5 6  7 
+
 8 9 10 11
+
 q)np[`arange;*;12][`reshape;*;3;4][`T]`
+
 0 1  2 
+
 3 4  5 
+
 6 7  8 
+
 9 10 11
 
 ### Equivalence of .p.import[] and .p.callable - 
+
 q)stdout:.p.callable(.p.import[\`sys]`stdout.write)
+
 q)stdout"hello\n";
+
 hello
+
 q)stderr:.p.import[\`sys;`stderr.write;*]
+
 q)stderr"goodbye\n";
+
 goodbye
 
 ## Notes
