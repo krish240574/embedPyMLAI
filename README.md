@@ -74,7 +74,7 @@ q)rs[2;6]
 
 6 7 8 9 10 11
 
-q)np[\`arange;*;12][`reshape;*;3;4]`
+q)np[\`arange;*;12][\`reshape;*;3;4]`
 
 0 1 2  3 
 
@@ -82,7 +82,7 @@ q)np[\`arange;*;12][`reshape;*;3;4]`
 
 8 9 10 11
 
-q)np[\`arange;*;12][`reshape;*;3;4][`T]`
+q)np[\`arange;*;12][\`reshape;*;3;4][`T]`
 
 0 1  2 
 
