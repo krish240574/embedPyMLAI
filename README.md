@@ -36,8 +36,11 @@ drf <filename> / - string file name
 
 ## Instantiating objects 
 pd:.p.import \`pandas
+
 pd[\`DataFrame;*][] - calls default constructor and instantiates
+
 or
+
 .p.import[\`pandas;`DataFrame;*][] - calls default constructor and instantiates
 
 ### Non-default constructor
