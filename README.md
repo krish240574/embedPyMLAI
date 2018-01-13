@@ -20,30 +20,33 @@ npar:.p.import[\`numpy;`array;* or < or >] - returns a embedPy, q or foreign(pyt
 ## The callable, pycallable or qcallable is implicit on usage of the [] in the above call, it automatically happens. 
 
 ## The above is equivalent to 
-np:.p.import \`numpy
+np:.p.import \`numpy; 
+
 npar:.p.callable np\`array; / or qcallable or pycallable
 
 ## Can also be used as 
-np:.p.import`numpy;
-np[`array;*;(1000 1000 1000;1000 1000 1000)]
+np:.p.import\`numpy;
+
+np[\`array;*;(1000 1000 1000;1000 1000 1000)]
 
 ## Another example :
-drf:.p.import[`dicom;`read_file;*] / .p.callable return of method read_file inside dicom
+drf:.p.import[\`dicom;`read_file;*] / .p.callable return of method read_file inside dicom
+
 drf <filename> / - string file name
 
 ## Instantiating objects 
-pd:.p.import `pandas
-pd[`DataFrame;*][] - calls default constructor and instantiates
+pd:.p.import \`pandas
+pd[\`DataFrame;*][] - calls default constructor and instantiates
 or
-.p.import[`pandas;`DataFrame;*][] - calls default constructor and instantiates
+.p.import[\`pandas;`DataFrame;*][] - calls default constructor and instantiates
 
 ### Non-default constructor
 ### without parens, returns an embedPy object containing a <class> - <class DataFframe> in this case
-df:..p.import[`pandas;`DataFrame;*] - get class , then instantiate later by 
+df:.p.import[\`pandas;`DataFrame;*] - get class , then instantiate later by 
 df[<appropriate object>]; / instantiation happens here with value passed
 
 ### Chaining embedpy objects 
-q)np:.p.import`numpy
+q)np:.p.import\`numpy
 q)v:np[`arange;*;12]
 q)v`
 0 1 2 3 4 5 6 7 8 9 10 11
@@ -68,10 +71,10 @@ q)np[`arange;*;12][`reshape;*;3;4][`T]`
 9 10 11
 
 ### Equivalence of .p.import[] and .p.callable - 
-q)stdout:.p.callable(.p.import[`sys]`stdout.write)
+q)stdout:.p.callable(.p.import[\`sys]`stdout.write)
 q)stdout"hello\n";
 hello
-q)stderr:.p.import[`sys;`stderr.write;*]
+q)stderr:.p.import[\`sys;`stderr.write;*]
 q)stderr"goodbye\n";
 goodbye
 
