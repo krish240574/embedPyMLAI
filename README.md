@@ -14,10 +14,10 @@ pm.q - LSTM for predictive maintenance.
 # Ways the embedPy feature/object gets used:
 
 ## Import a module - 
-np:.p.import`numpy - returns an embedPy object with pointers to all methods inside numpy
+<code>np:.p.import`numpy - returns an embedPy object with pointers to all methods inside numpy
 
 npar:.p.import[\`numpy;`array;* or < or >] - returns a embedPy, q or foreign(python) object with the array() method as callable,qcallable, or pycallable  - 
-#### The callable, pycallable or qcallable is implicit on usage of the [] in the above call, it automatically happens. 
+#### The callable, pycallable or qcallable is implicit on usage of the [] in the above call, it automatically happens. </code>
 
 ## The above is equivalent to 
 np:.p.import \`numpy; 
