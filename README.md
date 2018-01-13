@@ -48,17 +48,17 @@ df[<appropriate object>]; / instantiation happens here with value passed
 ### Chaining embedpy objects 
 q)np:.p.import\`numpy
 
-q)v:np[`arange;*;12]
+q)v:np[\`arange;*;12]
 
 q)v`
 
 0 1 2 3 4 5 6 7 8 9 10 11
 
-q)v[`mean;<][]
+q)v[\`mean;<][]
 
 5.5
 
-q)rs:v[`reshape;<]
+q)rs:v[\`reshape;<]
 
 q)rs[3;4]
 
@@ -74,7 +74,7 @@ q)rs[2;6]
 
 6 7 8 9 10 11
 
-q)np[`arange;*;12][`reshape;*;3;4]`
+q)np[\`arange;*;12][`reshape;*;3;4]`
 
 0 1 2  3 
 
@@ -82,7 +82,7 @@ q)np[`arange;*;12][`reshape;*;3;4]`
 
 8 9 10 11
 
-q)np[`arange;*;12][`reshape;*;3;4][`T]`
+q)np[\`arange;*;12][`reshape;*;3;4][`T]`
 
 0 1  2 
 
@@ -109,6 +109,6 @@ goodbye
 ## Notes
 If a method returns a foreign and one wants to access its methods, .p.wrap the foreign and then access methods. 
 In order to bring a python object and access its methods inside q, use an embedPy object, via either .p.import, .p.get or .p.eval, r .p.wrap. An embedPy object is effectively the representation of a python object inside q, with behaviour just like in the python world. 
-Once an embedPy object is created, one can either access attributes, or call methods and get q objects 
+Once an embedPy object is created, one can either access attributes, or call methods and get q objects.
 
 
