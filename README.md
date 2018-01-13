@@ -13,35 +13,35 @@ pm.q - LSTM for predictive maintenance.
 
 # Ways the embedPy feature/object gets used:
 
-Import a module - 
+## Import a module - 
 np:.p.import`numpy - returns a embedPy object with pointers to all methods inside numpy
+npar:.p.import[`numpy;`array;* or < or >] - returns a embedPy, q or foreign(python) object with the array() method as callable,qcallable, or pycallable  - 
+## The callable, pycallable or qcallable is implicit on usage of the [] in the above call, it automatically happens. 
 
-npar:.p.import[`numpy;`array;* or < or >] - returns a embedPy, q or foreign(python) object with the array() method as callable,qcallable, or pycallable  - automatically happens. 
-
-equivalent to 
+## The above is equivalent to 
 np:.p.import `numpy
 npar:.p.callable np`array; / or qcallable or pycallable
 
-can also be used as 
+## Can also be used as 
 np:.p.import`numpy;
 np[`array;*;(1000 1000 1000;1000 1000 1000)]
 
-Another example :
+## Another example :
 drf:.p.import[`dicom;`read_file;*] / .p.callable return of method read_file inside dicom
 drf <filename> / - string file name
 
-Instantiating objects 
-
+## Instantiating objects 
 pd:.p.import `pandas
-pd[`DataFrame;*][] - calls default constructor
-without parens, returns an embedPy <class DataFframe> 
+pd[`DataFrame;*][] - calls default constructor and instantiates
 or
-.p.import[`pandas;`DataFrame;*][] - calls default constructor
+.p.import[`pandas;`DataFrame;*][] - calls default constructor and instantiates
 
+### Non-default constructor
+### without parens, returns an embedPy object containing a <class> - <class DataFframe> in this case
 df:..p.import[`pandas;`DataFrame;*] - get class , then instantiate later by 
-df[<appropriate object>];
+df[<appropriate object>]; / instantiation happens here with value passed
 
-Chaining embedpy objects 
+### Chaining embedpy objects 
 q)np:.p.import`numpy
 q)v:np[`arange;*;12]
 q)v`
@@ -66,7 +66,7 @@ q)np[`arange;*;12][`reshape;*;3;4][`T]`
 6 7  8 
 9 10 11
 
-Equivalence of .p.import[] and .p.callable - 
+### Equivalence of .p.import[] and .p.callable - 
 q)stdout:.p.callable(.p.import[`sys]`stdout.write)
 q)stdout"hello\n";
 hello
@@ -74,9 +74,9 @@ q)stderr:.p.import[`sys;`stderr.write;*]
 q)stderr"goodbye\n";
 goodbye
 
-*** if a method returns a foreign and one wants to access its methods, .p.wrap the foreign and then access methods. 
-**** In order to bring a python object and access its methods inside q, use an embedPy object, via either .p.import, .p.get or .p.eval, r .p.wrap. An embedPy object is effectively the representation of a python object inside q, with behaviour just like in the python world. 
-**** Once an embedPy object is created, one can either access attributes, or call methods and get q objects 
-*** therefore, from foreign->embedPy->q.??
--> EmbedPy objects can be viewed as a representation of a python object inside q, with access to both attributes and methods of the python object inside q, in a q fashion.
+## Notes
+If a method returns a foreign and one wants to access its methods, .p.wrap the foreign and then access methods. 
+In order to bring a python object and access its methods inside q, use an embedPy object, via either .p.import, .p.get or .p.eval, r .p.wrap. An embedPy object is effectively the representation of a python object inside q, with behaviour just like in the python world. 
+Once an embedPy object is created, one can either access attributes, or call methods and get q objects 
+
 
