@@ -110,19 +110,25 @@ q)stderr"goodbye\n";
 goodbye
 
 ## Some examples 
-cox:.p.import[\`sksurv;\`linear_model;\`CoxPHSurvivalAnalysis;*]  - allowed - CoxPHSurvivalAnalysis is a class that can be instantiated later
+### Allowed - CoxPHSurvivalAnalysis is a class that can be instantiated later
+
+cox:.p.import[\`sksurv;\`linear_model;\`CoxPHSurvivalAnalysis;*]  
 
 q)print  cox
 
 <class 'sksurv.linear_model.coxph.CoxPHSurvivalAnalysis'>
 
-q)km:.p.import[\`sksurv;\`nonparametric ;\`kaplan_meier_estimator;\*] - allowed - kaplan_meier_estimator is a function
+### Allowed - kaplan_meier_estimator is a function
+
+q)km:.p.import[\`sksurv;\`nonparametric ;\`kaplan_meier_estimator;\*] 
 
 q)print km
 
 <function kaplan_meier_estimator at 0x7f775b7d5ae8>
 
-q)plt:.p.import[\`matplotlib;\`pyplot;\*] - not allowed - pyplot is a module, so must be loaded as below , since the [] tries to make the innermost import a .callable. 
+### Not allowed - pyplot is a module, so must be loaded as below , since the [] tries to make the innermost import a .callable. 
+
+q)plt:.p.import[\`matplotlib;\`pyplot;\*] - 
 
 AttributeError: module 'matplotlib' has no attribute 'pyplot'
 
