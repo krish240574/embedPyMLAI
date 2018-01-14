@@ -34,11 +34,8 @@ optimizer:opt[`minimize;>;cost] / Can safely set as foreign
 prediction:((count prediction),2)#raze over getval each prediction;
 labeldata:((count labeldata),2)#raze over labeldata;
 
-/ prediction has one extra
-p)import tensorflow as tf
-/ sess:.p.eval"tf.Session()";
+/ Get tensorflow Session object here
 sess:tf[`Session;*][];
-
 / This initializes all the weights and biases defined above
 sess[`run;<;.p.pyeval"tf.global_variables_initializer()"];
 
