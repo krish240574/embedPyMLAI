@@ -36,20 +36,20 @@ np:.p.import\`numpy;
 np[\`array;<;(1000 1000 1000;1000 1000 1000)]
 
 ## Another example :
-drf:.p.import[\`dicom;`read_file;*] / .p.callable return of method read_file inside dicom
+drf:.p.import[\`dicom;\`read_file;\*] - .p.callable return of method read_file inside dicom
 
-drf <filename> / - string file name
+drf \<filename\>  - string file name
 
 ## Instantiating objects 
 pd:.p.import \`pandas
 
-pd[\`DataFrame;*][] - calls default constructor and instantiates
+pd[\`DataFrame;\*][] - calls default constructor and instantiates
 
 or
 
 .p.import[\`pandas;\`DataFrame;\*][] - calls default constructor and instantiates
 
-## Non-default constructor
+## Non-default constructor :
 #### without parens, returns an embedPy object containing a \<class> - \<class DataFframe> in this case
 df:.p.import[\`pandas;\`DataFrame;\*] - get class , then instantiate later by 
 df[\<appropriate object\>]; / instantiation happens here with value passed
