@@ -21,7 +21,7 @@ np:.p.import`numpy - returns an embedPy object with pointers to all methods insi
 npar:.p.import[\`numpy;`array;* or < or >] - returns a embedPy, q or foreign(python) object with the array() method as callable,qcallable, or pycallable  - 
 #### The callable, pycallable or qcallable is implicit on usage of the [] in the above call, it automatically happens. 
 
-## The above is equivalent to 
+## The above is equivalent to :
 np:.p.import \`numpy; 
 
 npar:.p.callable np\`array; / or qcallable or pycallable
@@ -30,7 +30,7 @@ or
 
 npar:np[\`array;\*]; 
 
-## Can also be used as 
+## Can also be used as :
 np:.p.import\`numpy;
 
 np[\`array;<;(1000 1000 1000;1000 1000 1000)]
@@ -51,13 +51,13 @@ or
 
 ### Non-default constructor
 #### without parens, returns an embedPy object containing a \<class> - \<class DataFframe> in this case
-df:.p.import[\`pandas;`DataFrame;*] - get class , then instantiate later by 
-df[<appropriate object>]; / instantiation happens here with value passed
+df:.p.import[\`pandas;\`DataFrame;\*] - get class , then instantiate later by 
+df[\<appropriate object\>]; / instantiation happens here with value passed
 
-### Chaining embedpy objects 
+## Chaining embedpy objects :
 q)np:.p.import\`numpy
 
-q)v:np[\`arange;*;12]
+q)v:np[\`arange;\*;12]
 
 q)v`
 
@@ -83,7 +83,7 @@ q)rs[2;6]
 
 6 7 8 9 10 11
 
-q)np[\`arange;*;12][\`reshape;*;3;4]`
+q)np[\`arange;\*;12][\`reshape;\*;3;4]`
 
 0 1 2  3 
 
@@ -91,7 +91,7 @@ q)np[\`arange;*;12][\`reshape;*;3;4]`
 
 8 9 10 11
 
-q)np[\`arange;*;12][\`reshape;*;3;4][\`T]`
+q)np[\`arange;\*;12][\`reshape;\*;3;4][\`T]`
 
 0 1  2 
 
