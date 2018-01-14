@@ -12,7 +12,6 @@ readlabels:{[lst]
 lst:system "ls ./input/sample_images";
 path:"/sample_images/";
 fin:{.dsbowl.pd[x,"/";path]}each lst;
-show "Images pre-processed and resized...";
 
 \l inc/dsbowlnn.q
 prediction:.dsnn.predict[fin];
@@ -20,7 +19,6 @@ prediction:.dsnn.predict[fin];
 / Add predictions to tf graph explicitly
 tf[`add_to_collection;<;`prediction;prediction];
 
-show "here";
 / Read label data from disk
 labeldata:readlabels[lst];
 
@@ -57,15 +55,11 @@ k1validate:labeldata ktmp + til (count labeldata) - ktmp ;
 / Ready data and variables for session.Run()
 p)x = tf.placeholder('float')
 p)y = tf.placeholder('float')
-.p.set[`sess;sess];
-.p.set[`optimizer;optimizer]
-.p.set[`cost;cost];
+.p.set[`sess;sess];.p.set[`optimizer;optimizer];.p.set[`cost;cost];
 
 / Function for evaluating accuracy
 evalacc:{[acc]
-        .p.set[`Xval;finvalidate];
-        .p.set[`Yval;k1validate];
-        .p.set[`accuracy;acc];
+        .p.set[`Xval;finvalidate];.p.set[`Yval;k1validate];.p.set[`accuracy;acc];
         show "Validation data accuracy :";
         acceval:.p.eval"accuracy.eval({x:Xval,y:Yval}, session=sess)";
         show acceval`};
