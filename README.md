@@ -16,6 +16,8 @@ pm.q - LSTM for predictive maintenance.
 ## Import a module - 
 np:.p.import`numpy - returns an embedPy object with pointers to all methods inside numpy
 
+## Import a function inside a module 
+
 npar:.p.import[\`numpy;`array;* or < or >] - returns a embedPy, q or foreign(python) object with the array() method as callable,qcallable, or pycallable  - 
 #### The callable, pycallable or qcallable is implicit on usage of the [] in the above call, it automatically happens. 
 
@@ -24,10 +26,14 @@ np:.p.import \`numpy;
 
 npar:.p.callable np\`array; / or qcallable or pycallable
 
+or 
+
+npar:np[\`array;\*]; 
+
 ## Can also be used as 
 np:.p.import\`numpy;
 
-np[\`array;*;(1000 1000 1000;1000 1000 1000)]
+np[\`array;<;(1000 1000 1000;1000 1000 1000)]
 
 ## Another example :
 drf:.p.import[\`dicom;`read_file;*] / .p.callable return of method read_file inside dicom
