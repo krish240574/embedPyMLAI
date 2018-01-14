@@ -48,7 +48,6 @@ nclasses:2 / if cancer, if not cancer - returned as probabilities
 / final - 20 images of 50, 50, 20 each
 / and typecast to float 32 to match "input" variable inside conv3d call - tensorflow requirements
 .dsnn.reshape:{[findata;c].dsnn.npar .dsnn.getval tf[`reshape;<;.dsnn.npar "e"$findata c;`shape pykw .dsnn.npar (-1;50;50;count findata c;1)]};
-show "Images resized to 3D - to suit NN...";
 wts:(initvals[])0;
 / Use Adam Optimizer
 opt:tf[`train.AdamOptimizer;*;`learning_rate pykw 0.001]
