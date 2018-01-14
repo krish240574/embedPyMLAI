@@ -47,9 +47,9 @@ pd[\`DataFrame;*][] - calls default constructor and instantiates
 
 or
 
-.p.import[\`pandas;`DataFrame;*][] - calls default constructor and instantiates
+.p.import[\`pandas;\`DataFrame;\*][] - calls default constructor and instantiates
 
-### Non-default constructor
+## Non-default constructor
 #### without parens, returns an embedPy object containing a \<class> - \<class DataFframe> in this case
 df:.p.import[\`pandas;\`DataFrame;\*] - get class , then instantiate later by 
 df[\<appropriate object\>]; / instantiation happens here with value passed
