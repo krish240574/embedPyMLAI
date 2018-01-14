@@ -110,25 +110,23 @@ q)stderr"goodbye\n";
 goodbye
 
 ## Some examples 
-<code>
-cox:.p.import[`sksurv;`linear_model;`CoxPHSurvivalAnalysis;*]  - allowed - CoxPHSurvivalAnalysis is a class that can be instantiated later
+cox:.p.import[\`sksurv;\`linear_model;\`CoxPHSurvivalAnalysis;*]  - allowed - CoxPHSurvivalAnalysis is a class that can be instantiated later
 
 q)print  cox
 
 <class 'sksurv.linear_model.coxph.CoxPHSurvivalAnalysis'>
 
-q)km:.p.import[`sksurv;`nonparametric ;`kaplan_meier_estimator;*] - allowed - kaplan_meier_estimator is a function
+q)km:.p.import[\`sksurv;\`nonparametric ;\`kaplan_meier_estimator;\*] - allowed - kaplan_meier_estimator is a function
 
 q)print km
 
 <function kaplan_meier_estimator at 0x7f775b7d5ae8>
 
-q)plt:.p.import[`matplotlib;`pyplot;*] - not allowed - pyplot is a module, so must be loaded as below , since the [] tries to make the innermost import a .callable. 
+q)plt:.p.import[\`matplotlib;\`pyplot;\*] - not allowed - pyplot is a module, so must be loaded as below , since the [] tries to make the innermost import a .callable. 
 
 AttributeError: module 'matplotlib' has no attribute 'pyplot'
 
-plt:.p.import `matplotlib.pyplot;
-</code>
+plt:.p.import \`matplotlib.pyplot;
 
 ## Notes
 If a method returns a foreign and one wants to access the returned object's methods, .p.wrap the foreign and then access methods. 
