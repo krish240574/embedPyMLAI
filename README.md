@@ -111,18 +111,19 @@ goodbye
 
 ## Some examples 
 <code>
-cox:.p.import[\`sksurv;\`linear_model;\`CoxPHSurvivalAnalysis;\*] / allowed - CoxPHSurvivalAnalysis is a class that can be instantiated later
+cox:.p.import[`sksurv;`linear_model;`CoxPHSurvivalAnalysis;*] / allowed - CoxPHSurvivalAnalysis is a class that can be instantiated later
 q)print  cox
 <class 'sksurv.linear_model.coxph.CoxPHSurvivalAnalysis'>
 
-q)km:.p.import[\`sksurv;\`nonparametric ;\`kaplan_meier_estimator;\*] - allowed - kaplan_meier_estimator is a function
+q)km:.p.import[`sksurv;`nonparametric ;`kaplan_meier_estimator;*] - allowed - kaplan_meier_estimator is a function
 q)print km
 <function kaplan_meier_estimator at 0x7f775b7d5ae8>
 
-q)plt:.p.import[\`matplotlib;\`pyplot;\*] - not allowed - pyplot is a module, so must be loaded as below , since the [] tries to make the innermost import a .callable. 
+q)plt:.p.import[`matplotlib;`pyplot;*] - not allowed - pyplot is a module, so must be loaded as below , since the [] tries to make the innermost import a .callable. 
 AttributeError: module 'matplotlib' has no attribute 'pyplot'
-plt:.p.import \`matplotlib.pyplot;
+plt:.p.import `matplotlib.pyplot;
 </code>
+
 ## Notes
 If a method returns a foreign and one wants to access the returned object's methods, .p.wrap the foreign and then access methods. 
 In order to bring a python object and access its methods inside q, use an embedPy object, via either .p.import, .p.get or .p.eval, r .p.wrap. An embedPy object is effectively the representation of a python object inside q, with behaviour just like in the python world. 
