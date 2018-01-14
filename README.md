@@ -40,7 +40,7 @@ drf:.p.import[\`dicom;\`read_file;\*] - .p.callable return of method read_file i
 
 drf \<filename\>  - string file name
 
-## Instantiating objects 
+## Instantiating objects :
 pd:.p.import \`pandas
 
 pd[\`DataFrame;\*][] - calls default constructor and instantiates
@@ -50,7 +50,7 @@ or
 .p.import[\`pandas;\`DataFrame;\*][] - calls default constructor and instantiates
 
 ## Non-default constructor :
-#### without parens, returns an embedPy object containing a \<class> - \<class DataFframe> in this case
+#### - Without parens, returns an embedPy object containing a \<class> - \<class DataFframe> in this case
 df:.p.import[\`pandas;\`DataFrame;\*] - get class , then instantiate later by 
 df[\<appropriate object\>]; / instantiation happens here with value passed
 
