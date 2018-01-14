@@ -14,14 +14,14 @@ pm.q - LSTM for predictive maintenance.
 # Ways the embedPy feature/object gets used:
 
 ## Import a module - 
-np:.p.import`numpy - returns an embedPy object with pointers to all methods inside numpy
+np:.p.import\`numpy - returns an embedPy object with pointers to all methods inside numpy
 
 ## Import a function inside a module 
 
-npar:.p.import[\`numpy;`array;* or < or >] - returns a embedPy, q or foreign(python) object with the array() method as callable,qcallable, or pycallable  - 
+npar:.p.import[\`numpy;`array;\* or \< or \>] - returns a embedPy, q or foreign(python) object with the array() method as callable,qcallable, or pycallable  - 
 #### The callable, pycallable or qcallable is implicit on usage of the [] in the above call, it automatically happens. 
 
-## The above is equivalent to :
+### The above is equivalent to :
 np:.p.import \`numpy; 
 
 npar:.p.callable np\`array; / or qcallable or pycallable
@@ -30,12 +30,12 @@ or
 
 npar:np[\`array;\*]; 
 
-## Can also be used as :
+### Can also be used as :
 np:.p.import\`numpy;
 
 np[\`array;<;(1000 1000 1000;1000 1000 1000)]
 
-## Another example :
+### Another example :
 drf:.p.import[\`dicom;\`read_file;\*] - .p.callable return of method read_file inside dicom
 
 drf \<filename\>  - string file name
@@ -49,7 +49,7 @@ or
 
 .p.import[\`pandas;\`DataFrame;\*][] - calls default constructor and instantiates
 
-## Non-default constructor :
+### Non-default constructor :
 #### - Without parens, returns an embedPy object containing a \<class> - \<class DataFframe> in this case
 df:.p.import[\`pandas;\`DataFrame;\*] - get class , then instantiate later by 
 df[\<appropriate object\>]; / instantiation happens here with value passed
@@ -101,7 +101,7 @@ q)np[\`arange;\*;12][\`reshape;\*;3;4][\`T]`
 
 9 10 11
 
-### Equivalence of .p.import[] and .p.callable - 
+## Equivalence of .p.import[] and .p.callable - 
 
 q)stdout:.p.callable(.p.import[\`sys]`stdout.write)
 
