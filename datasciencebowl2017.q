@@ -6,8 +6,8 @@ readlabels:{[lst]
         lbl:("SI";enlist ",")0: `:stage1_labels.csv;
         lbl:select from lbl where id in `$lst;
         k::lbl`cancer; labeldata:((count k)#());
-        labeldata:@[labeldata;where 0=k;:;(count where 0=k)#(1 2)#(1;0)];
-        labeldata:@[labeldata;where 1=k;:;(count where 1=k)#(1 2)#(0;1)];
+        @[`labeldata;where 0=k;:;(count where 0=k)#(1 2)#(1;0)];
+        @[`labeldata;where 1=k;:;(count where 1=k)#(1 2)#(0;1)];
         :labeldata};
 lst:system "ls ./input/sample_images";
 path:"/sample_images/";
