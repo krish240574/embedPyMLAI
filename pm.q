@@ -38,7 +38,8 @@ t:([]cyclenorm:t`cycle),'t;
 / Normalize training and test data
 npar:.p.import [`numpy;`array;>];
 pd:.p.import[`pandas;`DataFrame;*];
-mms:.p.import[`sklearn;`preprocessing;`MinMaxScaler;*][];
+pre:.p.import `sklearn.preprocessing;
+mms:pre[`MinMaxScaler;*][];
 floatCols,:`cyclenorm; / Add a column "cyclenorm"
 normalize:{[df] df:pd[npar df];mms[`fit_transform;<;df]};
 / Get only sensor value columns
