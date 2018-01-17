@@ -1,8 +1,7 @@
 \l p.q
 npar:.p.import[`numpy;`array;>]
 
-//////////////////// Still testing, not stable !!
-
+/ Still testing !!!!
 / https://ministryofdata.org.au/mod-2017-hackathon-problems/wc-pr11-predictive-pumps-pipes-maintenance/
 / A weird dataset, with no machine Ids, only date-time and 379 columns of sensor data
 / I'm asking the question here - "What is the time to failure?", and the approach is quite roundabout, as follows:
@@ -53,20 +52,6 @@ q)tds:flip (cds wtss) ! ds cds wtss
 tds:tds,'flip fc!ds fc;
 tds:([]dt:ds`dt),'([]rul:ds`rul),'([]lbl:ds`lbl),'tds;
 / Need to get rid of d and ds here, too much memory leakage !
-\
-q)k:0,/:tds`rul
-q)t:distinct 100?count tds
-q)@[`k;t;:;(1,/: (tds`rul) t)]
-.p.set[`y;k];
-p)import numpy as np
-q)p)y = (np.array(list(y),dtype=[('Status', '?'), ('Survival_in_days', '<f8')]))
-.p.set[`x;flip 0^'tds fc]
-p)from sksurv.linear_model import CoxPHSurvivalAnalysis
-p)estimator = CoxPHSurvivalAnalysis()
-q)p)estimator.fit(x,y);
-p)pd.Series(estimator.coef_, index=x.columns)
-\
-
 / Work only with float columns for now
 df:flip tds fc;
 q)pre:.p.import `sklearn.preprocessing
@@ -79,7 +64,6 @@ q)normdf:([]rul:tds`rul),'([]lbl:tds`lbl),'flip fc !flip normdf
 t:flip normdf cols normdf;
 tv:t v:(til(-50+count t))+\:til 50;
 l:reverse (-50 + count normdf) # reverse normdf`lbl
-
 / LSTM network here
 nf:count tv[0][0]; / 32
 nout:count l[0]; / 1
@@ -97,5 +81,20 @@ model[`add;<;layers[`Dense;<;pykwargs `units`activation!(nout;`sigmoid)]]
 /model:getModel[nf;nout];
 model[`compile;<;pykwargs `loss`optimizer!(`binary_crossentropy`adam)];
 model[`summary;<][];
-
+kumar;
 model[`fit;<;npar tv;npar l;pykwargs `epochs`batch_size`validation_split`verbose!(5;200;0.05;1)]
+
+
+
+\
+q)k:0,/:tds`rul
+q)t:distinct 100?count tds
+q)@[`k;t;:;(1,/: (tds`rul) t)]
+.p.set[`y;k];
+p)import numpy as np
+q)p)y = (np.array(list(y),dtype=[('Status', '?'), ('Survival_in_days', '<f8')]))
+.p.set[`x;flip 0^'tds fc]
+p)from sksurv.linear_model import CoxPHSurvivalAnalysis
+p)estimator = CoxPHSurvivalAnalysis()
+q)p)estimator.fit(x,y);
+p)pd.Series(estimator.coef_, index=x.columns)
