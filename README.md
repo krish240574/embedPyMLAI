@@ -140,6 +140,25 @@ AttributeError: module 'matplotlib' has no attribute 'pyplot'
 
 plt:.p.import \`matplotlib.pyplot;
 
+### A deceptive example : MinMAxScaler inside sklearn.preprocessing
+
+This function returns an object of class MinMaxScaler, it is a function call, not a class. So one could wrongly define it as
+
+mms:.p.import[\`sklearn;\`preproocessing;\`MinMaxScaler;\*][], expecting an object of class MinMaxScaler to be instantiated.
+
+But this call fails, with the error message : "AttributeError: module 'sklearn' has no attribute 'preprocessing'"
+
+I have noticed this error with some matplotlib.pyplot function calls too, that return objects, but look like class names. 
+
+So to use MinMaxScaler, do the following :
+
+pre:.p.import \`sklearn.preprocessing;
+
+mms:pre[\`MinMaxScaler;\*][]; 
+
+Then, mms safely contains :
+MinMaxScaler(copy=True, feature_range=(0, 1))
+
 ## Notes
 If a method returns a foreign and one wants to access the returned object's methods, .p.wrap the foreign and then access methods. 
 In order to bring a python object and access its methods inside q, use an embedPy object, via either .p.import, .p.get or .p.eval, r .p.wrap. An embedPy object is effectively the representation of a python object inside q, with behaviour just like in the python world. 
