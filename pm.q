@@ -10,10 +10,10 @@ floatCols:(cols d)where "F"=colStr; / float valued columns
 / Add RUL and labels to training dataset
 gd:select by id from d;
 gid:group d`id;
-vgd:value gd
+vgd:value gd;
 rul:([]rul:raze (vgd`cycle) - (d`cycle )value gid)
 d:rul,'d;
-d:lbl1:([]lbl1:(d`rul)<=30),'d
+d:([]lbl1:(d`rul)<=30),'d
 d:([]lbl2:(d`rul)<=15),'d
 d:([]cyclenorm:d`cycle),'d;
 
@@ -21,34 +21,35 @@ d:([]cyclenorm:d`cycle),'d;
 tr:([]remcycles:"I"$read0 `:PM_truth.txt);
 
 / Testing data
+/ Add RUL and labels to test dataset
 t:(colStr;enlist " ")0: `:PM_test.txt;
 gt:select by id from t;
 git:group t`id;
 vgt:value gt;
+/ Add truth cycles to cycles
 cycle:([]cycle:(tr`remcycles)+vgt`cycle);
 vgt:delete cycle from vgt;
 vgt:cycle,'vgt;
-/ Add RUL and labels to test dataset
 rul:([]rul:raze (vgt`cycle) - (t`cycle )value git);
 t:rul,'t;
-t:lbl1:([]lbl1:(t`rul)<=30),'t;
+t:([]lbl1:(t`rul)<=30),'t;
 t:([]lbl2:(t`rul)<=15),'t;
 t:([]cyclenorm:t`cycle),'t;
 
 / Normalize training and test data
 npar:.p.import [`numpy;`array;>];
 pd:.p.import[`pandas;`DataFrame;*];
-pre:.p.import `sklearn.preprocessing;
+pre:.p.import `sklearn.preprocessing
 mms:pre[`MinMaxScaler;*][];
 floatCols,:`cyclenorm; / Add a column "cyclenorm"
 normalize:{[df] df:pd[npar df];mms[`fit_transform;<;df]};
 / Get only sensor value columns
 s:(normalize ':) (flip d floatCols;flip t floatCols)
 / Reconstruct training and testing
-d:(flip (`id`cycle`rul`lbl1`lbl2)!d`id`cycle`rul`lbl1`lbl2),'flip floatCols !flip (s 0 )
-t:(flip (`id`cycle`rul`lbl1`lbl2)!t`id`cycle`rul`lbl1`lbl2),'flip floatCols !flip (s 1 )
-d:fills each d;
-t:fills each t;
+d:(flip (`id`cycle`rul`lbl1`lbl2)!d`id`cycle`rul`lbl1`lbl2),'flip floatCols !flip (0^'s 0 )
+t:(flip (`id`cycle`rul`lbl1`lbl2)!t`id`cycle`rul`lbl1`lbl2),'flip floatCols !flip (0^s 1 )
+/ d:fills each d;
+/ t:fills each t;
 
 / LSTM preps
 / Group by id and get only floatCols
@@ -59,12 +60,13 @@ tmp:(flip d floatCols )group d`id / Id- wise grouping and indexing
 seqw:({k:-50+count tmp x;if[0=k or 1=k;k+:1];v:(til k)+\:til 50;:(tmp x) v}':);
 r:raze seqw key tmp; /15631,50,25
 
+
 / Get last (count each) - 50 label values
 dl:reverse each (d`lbl1)group d`id;
 cdl:count each dl;
 dl:raze over reverse each (cdl-50) # 'dl;
 .Q.gc[]
-
+kumar;
 / LSTM network here
 nf:count r[0][0]; / 25
 nout:count dl[0]; / 1
@@ -80,7 +82,7 @@ model[`compile;<;pykwargs `loss`optimizer!(`binary_crossentropy`adam)];
 model[`summary;<][];
 
 / Train LSTM with training set
-model[`fit;<;npar r;npar dl;pykwargs `epochs`batch_size`validation_split`verbose!(1;200;0.05;1)]
+model[`fit;<;npar r;npar dl;pykwargs `epochs`batch_size`validation_split`verbose!(5;200;0.05;1)]
 / Evaluate with training set
 show "Evaluating with training set...";
 scores:model[`evaluate;<;npar r;npar dl;pykwargs `verbose`batch_size!(1;200)]
@@ -94,6 +96,7 @@ show "Precision Score:";
 show metrics[`precision_score;<;npar dl;npar ypreds];
 show "Recall Score:";
 show metrics[`recall_score;<;npar dl;npar ypreds];
+
 
 / Now to handle the test set
 tmp:(flip t floatCols )group t`id; / Id- wise grouping and indexing
