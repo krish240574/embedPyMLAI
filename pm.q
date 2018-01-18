@@ -36,7 +36,7 @@ t:([]lbl1:(t`rul)<=30),'t;
 t:([]lbl2:(t`rul)<=15),'t;
 t:([]cyclenorm:t`cycle),'t;
 
-/ Normalize training and test data
+/ Normalize training and test data 
 npar:.p.import [`numpy;`array;>];
 pd:.p.import[`pandas;`DataFrame;*];
 pre:.p.import `sklearn.preprocessing
