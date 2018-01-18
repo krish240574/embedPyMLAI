@@ -144,7 +144,7 @@ plt:.p.import \`matplotlib.pyplot;
 
 This function returns an object of class MinMaxScaler, it is a function call, not a class. So one could wrongly define it as
 
-mms:.p.import[\`sklearn;\`preproocessing;\`MinMaxScaler;\*][], expecting an object of class MinMaxScaler to be instantiated.
+mms:.p.import[\`sklearn;\`preprocessing;\`MinMaxScaler;\*][], expecting an object of class MinMaxScaler to be instantiated.
 
 But this call fails, with the error message : "AttributeError: module 'sklearn' has no attribute 'preprocessing'"
 
