@@ -118,7 +118,7 @@ goodbye
 ## Some examples 
 ### Allowed - CoxPHSurvivalAnalysis is a class that can be instantiated later
 
-cox:.p.import[\`sksurv;\`linear_model;\`CoxPHSurvivalAnalysis;*]  
+cox:.p.import[\`sksurv;\`linear_model;\`coxph;\`CoxPHSurvivalAnalysis;*]  
 
 q)print  cox
 
