@@ -14,9 +14,7 @@ pm.q - LSTM for predictive maintenance.
 # Ways the embedPy feature/object gets used:
 
 ## Import a module - 
-<pre><code>
 np:.p.import\`numpy - returns an embedPy object with pointers to all methods inside numpy
-</code></pre>
 
 ## Import a function inside a module 
 
