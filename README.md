@@ -118,7 +118,11 @@ goodbye
 ## Some examples 
 ### Allowed - CoxPHSurvivalAnalysis is a class that can be instantiated later
 
-cox:.p.import[\`sksurv;\`linear_model;\`coxph;\`CoxPHSurvivalAnalysis;*]  
+#### N.B: Allowed ONLY after an import of the higher level module, like so:
+
+cph:.p.import \`sksurv.linear_model.coxph;
+
+cox:.p.import[\`sksurv;\`linear_model;\`coxph;\`CoxPHSurvivalAnalysis;\*]  
 
 q)print  cox
 
@@ -140,21 +144,18 @@ AttributeError: module 'matplotlib' has no attribute 'pyplot'
 
 plt:.p.import \`matplotlib.pyplot;
 
-### A deceptive example : MinMAxScaler inside sklearn.preprocessing
-
-This function returns an object of class MinMaxScaler, it is a function call, not a class. So one could wrongly define it as
+### Another example : MinMAxScaler inside sklearn.preprocessing
+One would try to instantiate a <class> directly, like so:
 
 mms:.p.import[\`sklearn;\`preprocessing;\`MinMaxScaler;\*][], expecting an object of class MinMaxScaler to be instantiated.
 
-But this call fails, with the error message : "AttributeError: module 'sklearn' has no attribute 'preprocessing'"
-
-I have noticed this error with some matplotlib.pyplot function calls too, that return objects, but look like class names. 
+But this call fails, with the error message : "AttributeError: module 'sklearn' has no attribute 'preprocessing'" 
 
 So to use MinMaxScaler, do the following :
 
 pre:.p.import \`sklearn.preprocessing;
 
-mms:pre[\`MinMaxScaler;\*][]; 
+mms:pre[\`MinMaxScaler;\*][]; / now that higher-level module is imported into shared memory already. 
 
 Then, mms safely contains :
 MinMaxScaler(copy=True, feature_range=(0, 1))
