@@ -6,7 +6,7 @@ contract:.p.import[`IBWrapper;`contract;*];
 ibw:.p.import[`IBWrapper;`IBWrapper;*];
 ecs:.p.import `ib.ext.EClientSocket;
 
-/ Why can't I .p.impot[`ib;`ext;`EClientSocket;`EClientSocket;*] directly?
+/ Why can't I .p.import[`ib;`ext;`EClientSocket;`EClientSocket;*] directly?
 ssub:.p.import `ib.ext.ScannerSubscription
 callback:ibw[]
 tws:ecs[`EClientSocket;*;callback]
