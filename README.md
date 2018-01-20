@@ -128,7 +128,11 @@ q)print  cox
 
 <class 'sksurv.linear_model.coxph.CoxPHSurvivalAnalysis'>
 
-### Allowed - kaplan_meier_estimator is a function
+### Allowed - kaplan_meier_estimator is a function - only if \`sksurv.nonparametric is imported 
+
+q).p.import \`sksurv.nonparametric;
+{[c;r;x;a]embedPy[c;r;x;a]}[0;0;foreign]enlist
+
 
 q)km:.p.import[\`sksurv;\`nonparametric ;\`kaplan_meier_estimator;\*] 
 
