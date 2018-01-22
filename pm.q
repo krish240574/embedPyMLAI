@@ -3,54 +3,19 @@ c:`id`cycle`setting1`setting2`setting3`s1`s2`s3`s4`s5`s6`s7`s8`s9`s10`s11`s12`s1
 colStr:"II",(-2+count c)#"F";
 models:.p.import`keras.models;
 layers:.p.import`keras.layers;
-
-/ Training data
+\l inc/pminc.k
+k)floatCols:(!+0!d)[&:"F"=cs]
 d:(colStr;enlist " ")0: `:PM_train.txt;
-floatCols:(cols d)where "F"=colStr; / float valued columns
-/ Add RUL and labels to training dataset
-gd:select by id from d;
-gid:group d`id;
-vgd:value gd;
-rul:([]rul:raze (vgd`cycle) - (d`cycle )value gid)
-d:rul,'d;
-d:([]lbl1:(d`rul)<=30),'d
-d:([]lbl2:(d`rul)<=15),'d
-d:([]cyclenorm:d`cycle),'d;
-
-/ Read truth data first and then use
-tr:([]remcycles:"I"$read0 `:PM_truth.txt);
-
-/ Testing data
-/ Add RUL and labels to test dataset
 t:(colStr;enlist " ")0: `:PM_test.txt;
-gt:select by id from t;
-git:group t`id;
-vgt:value gt;
-/ Add truth cycles to cycles
-cycle:([]cycle:(tr`remcycles)+vgt`cycle);
-vgt:delete cycle from vgt;
-vgt:cycle,'vgt;
-rul:([]rul:raze (vgt`cycle) - (t`cycle )value git);
-t:rul,'t;
-t:([]lbl1:(t`rul)<=30),'t;
-t:([]lbl2:(t`rul)<=15),'t;
-t:([]cyclenorm:t`cycle),'t;
+d:.pm.pd[d;colStr;"xxxx"];
+t:.pm.pd[t;colStr;"test"];
 
-/ Normalize training and test data 
-npar:.p.import [`numpy;`array;>];
-pd:.p.import[`pandas;`DataFrame;*];
-pre:.p.import `sklearn.preprocessing
-mms:pre[`MinMaxScaler;*][];
+/ Normalize sensor columns for training and test
 floatCols,:`cyclenorm; / Add a column "cyclenorm"
-normalize:{[df] df:pd[npar df];mms[`fit_transform;<;df]};
-/ Get only sensor value columns
-s:(normalize ':) (flip d floatCols;flip t floatCols)
+s:(.pm.norm ':) (((flip d floatCols);floatCols);((flip t floatCols);floatCols))
 / Reconstruct training and testing
 d:(flip (`id`cycle`rul`lbl1`lbl2)!d`id`cycle`rul`lbl1`lbl2),'flip floatCols !flip (0^'s 0 )
 t:(flip (`id`cycle`rul`lbl1`lbl2)!t`id`cycle`rul`lbl1`lbl2),'flip floatCols !flip (0^s 1 )
-/ d:fills each d;
-/ t:fills each t;
-
 / LSTM preps
 / Group by id and get only floatCols
 tmp:(flip d floatCols )group d`id / Id- wise grouping and indexing
@@ -77,7 +42,6 @@ model[`add;<;layers[`Dropout;<;0.2]];
 model[`add;<;layers[`LSTM;<;pykwargs `units`return_sequences!(50;0)]];
 model[`add;<;layers[`Dropout;<;0.2]];
 model[`add;<;layers[`Dense;<;pykwargs `units`activation!(nout;`sigmoid)]]
-/model:getModel[nf;nout];
 model[`compile;<;pykwargs `loss`optimizer!(`binary_crossentropy`adam)];
 model[`summary;<][];
 
