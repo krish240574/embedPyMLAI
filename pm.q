@@ -1,37 +1,44 @@
 \l p.q
-c:`id`cycle`setting1`setting2`setting3`s1`s2`s3`s4`s5`s6`s7`s8`s9`s10`s11`s12`s13`s14`s15`s16`s17`s18`s19`s20`s21;
-colStr:"II",(-2+count c)#"F";
 models:.p.import`keras.models;
 layers:.p.import`keras.layers;
-\l inc/pminc.k
-k)floatCols:(!+0!d)[&:"F"=cs]
+npar:.p.import [`numpy;`array;>];
+pd:.p.import[`pandas;`DataFrame;*];
+pre:.p.import `sklearn.preprocessing
+mms:pre[`MinMaxScaler;*][];
+
+c:`id`cycle`setting1`setting2`setting3`s1`s2`s3`s4`s5`s6`s7`s8`s9`s10`s11`s12`s13`s14`s15`s16`s17`s18`s19`s20`s21;
+colStr:"II",(-2+count c)#"F";
 d:(colStr;enlist " ")0: `:PM_train.txt;
 t:(colStr;enlist " ")0: `:PM_test.txt;
+k)floatCols:(!+0!d)[&:"F"=colStr];
+
+/ Generate sequences for LSTM
+/ 50-row windows for each id
+seqw:({k:-50+count tmp x;if[0=k or 1=k;k+:1];v:(til k)+\:til 50;:(tmp x) v}':);
+\l inc/pminc.k
 d:.pm.pd[d;colStr;"xxxx"];
 t:.pm.pd[t;colStr;"test"];
 
-/ Normalize sensor columns for training and test
 floatCols,:`cyclenorm; / Add a column "cyclenorm"
-s:(.pm.norm ':) (((flip d floatCols);floatCols);((flip t floatCols);floatCols))
+/ Normalize sensor columns for training and test
+normalize:{[df] df:pd[npar df];mms[`fit_transform;<;df]};
+s:(normalize ':) (flip d floatCols;flip t floatCols)
 / Reconstruct training and testing
 d:(flip (`id`cycle`rul`lbl1`lbl2)!d`id`cycle`rul`lbl1`lbl2),'flip floatCols !flip (0^'s 0 )
 t:(flip (`id`cycle`rul`lbl1`lbl2)!t`id`cycle`rul`lbl1`lbl2),'flip floatCols !flip (0^s 1 )
+
 / LSTM preps
 / Group by id and get only floatCols
 tmp:(flip d floatCols )group d`id / Id- wise grouping and indexing
-/ Generate sequences for LSTM
-/ 50-row windows for each id
-/ seqw:({v:(til(-50+count tmp x))+\:til 50;:(tmp x) v}':);
-seqw:({k:-50+count tmp x;if[0=k or 1=k;k+:1];v:(til k)+\:til 50;:(tmp x) v}':);
+
+umar;
 r:raze seqw key tmp; /15631,50,25
 
-
 / Get last (count each) - 50 label values
-dl:reverse each (d`lbl1)group d`id;
-cdl:count each dl;
+cdl:count each dl:reverse each (d`lbl1)group d`id;
+cdl:count each dl:reverse each (d`lbl1)group d`id;
 dl:raze over reverse each (cdl-50) # 'dl;
-.Q.gc[]
-kumar;
+
 / LSTM network here
 nf:count r[0][0]; / 25
 nout:count dl[0]; / 1
@@ -61,13 +68,11 @@ show metrics[`precision_score;<;npar dl;npar ypreds];
 show "Recall Score:";
 show metrics[`recall_score;<;npar dl;npar ypreds];
 
-
 / Now to handle the test set
 tmp:(flip t floatCols )group t`id; / Id- wise grouping and indexing
 kt:(key tmp) where 50 <= count each value tmp;
 rt:seqw kt;
 / take last sequence of each id for testing - meaning, last cycle for each id
-/rt:((count rt),50,25)#raze over last each rt;
 rt:last each rt;
 
 / Get last (count each) - 50 label values
