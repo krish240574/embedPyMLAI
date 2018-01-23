@@ -1,6 +1,4 @@
 \l p.q
-models:.p.import`keras.models;
-layers:.p.import`keras.layers;
 npar:.p.import [`numpy;`array;>];
 pd:.p.import[`pandas;`DataFrame;*];
 pre:.p.import `sklearn.preprocessing
@@ -15,6 +13,7 @@ k)floatCols:(!+0!d)[&:"F"=colStr];
 / Generate sequences for LSTM
 / 50-row windows for each id
 seqw:({k:-50+count tmp x;if[0=k or 1=k;k+:1];v:(til k)+\:til 50;:(tmp x) v}':);
+/ Process data
 \l inc/pminc.k
 d:.pm.pd[d;colStr;"xxxx"];
 t:.pm.pd[t;colStr;"test"];
@@ -30,12 +29,8 @@ t:(flip (`id`cycle`rul`lbl1`lbl2)!t`id`cycle`rul`lbl1`lbl2),'flip floatCols !fli
 / LSTM preps
 / Group by id and get only floatCols
 tmp:(flip d floatCols )group d`id / Id- wise grouping and indexing
-
-umar;
 r:raze seqw key tmp; /15631,50,25
-
 / Get last (count each) - 50 label values
-cdl:count each dl:reverse each (d`lbl1)group d`id;
 cdl:count each dl:reverse each (d`lbl1)group d`id;
 dl:raze over reverse each (cdl-50) # 'dl;
 
@@ -43,15 +38,9 @@ dl:raze over reverse each (cdl-50) # 'dl;
 nf:count r[0][0]; / 25
 nout:count dl[0]; / 1
 / Get model - LSTM with dense and dropouts
-model:models[`Sequential;*][]; / Instantiating an object here
-model[`add;<;layers[`LSTM;<;pykwargs `input_shape`units`return_sequences!((50;nf);100;1)]];
-model[`add;<;layers[`Dropout;<;0.2]];
-model[`add;<;layers[`LSTM;<;pykwargs `units`return_sequences!(50;0)]];
-model[`add;<;layers[`Dropout;<;0.2]];
-model[`add;<;layers[`Dense;<;pykwargs `units`activation!(nout;`sigmoid)]]
-model[`compile;<;pykwargs `loss`optimizer!(`binary_crossentropy`adam)];
+\l inc/pmnn.q
+model:.nn.getModel[nf;nout];
 model[`summary;<][];
-
 / Train LSTM with training set
 model[`fit;<;npar r;npar dl;pykwargs `epochs`batch_size`validation_split`verbose!(5;200;0.05;1)]
 / Evaluate with training set
@@ -74,7 +63,6 @@ kt:(key tmp) where 50 <= count each value tmp;
 rt:seqw kt;
 / take last sequence of each id for testing - meaning, last cycle for each id
 rt:last each rt;
-
 / Get last (count each) - 50 label values
 tl:reverse each (t`lbl1)group t`id;
 tle:count each tl;
@@ -85,6 +73,7 @@ tl:((count tl),1)#value tl;
 
 show "Evaluating using test set...";
 scorestest:model[`evaluate;<;npar rt;npar tl;`verbose pykw 2]
+show "Test evaluation score:";
 show "Test evaluation score:";
 show scorestest;
 
