@@ -1,5 +1,5 @@
 \l p.q
-npar:.p.import[`numpy;`array;>];
+npar:.p.import[`numpy;`:array;>];
 models:.p.import`keras.models;
 layers:.p.import`keras.layers;
 / https://ministryofdata.org.au/mod-2017-hackathon-problems/wc-pr11-predictive-pumps-pipes-maintenance/
@@ -14,23 +14,24 @@ cd:cols d;
 \l inc/waterpd.q
 d:.wpd.pd[d;50;cd;colStr];
 t:.wpd.pd[t;50;cd;colStr];
+
 / LSTM network here
 nf:count (d 0)[0][0]; / 32
 nout:count (d 1)[0]; / 1
 / Get model - LSTM with dense and dropouts
-model:models[`Sequential;*][]; / Instantiating an object here
-model[`add;<;layers[`LSTM;<;pykwargs `input_shape`units`return_sequences!((50;nf);100;1)]];
-model[`add;<;layers[`Dropout;<;0.2]];
-model[`add;<;layers[`LSTM;<;pykwargs `units`return_sequences!(50;0)]];
-model[`add;<;layers[`Dropout;<;0.2]];
-model[`add;<;layers[`Dense;<;pykwargs `units`activation!(nout;`sigmoid)]]
-model[`compile;<;pykwargs `loss`optimizer!(`binary_crossentropy`adam)];
-model[`summary;<][];
+model:models[`:Sequential;*][]; / Instantiating an object here
+model[`:add;<;layers[`:LSTM;<;pykwargs `input_shape`units`return_sequences!((50;nf);100;1)]];
+model[`:add;<;layers[`:Dropout;<;0.2]];
+model[`:add;<;layers[`:LSTM;<;pykwargs `units`return_sequences!(50;0)]];
+model[`:add;<;layers[`:Dropout;<;0.2]];
+model[`:add;<;layers[`:Dense;<;pykwargs `units`activation!(nout;`sigmoid)]]
+model[`:compile;<;pykwargs `loss`optimizer!(`binary_crossentropy`adam)];
+model[`:summary;<][];
 tv:d 0;l:d 1;
-model[`fit;<;npar tv;npar l;pykwargs `epochs`batch_size`validation_split`verbose!(1;200;0.05;1)];
-scores:model[`evaluate;<;npar tv;npar l;pykwargs `verbose`batch_size!(1;200)]
-ytpreds:model[`predict_classes;<;npar t 0;`verbose pykw 1]
+model[`:fit;<;npar tv;npar l;pykwargs `epochs`batch_size`validation_split`verbose!(1;200;0.05;1)];
+scores:model[`:evaluate;<;npar tv;npar l;pykwargs `verbose`batch_size!(1;200)]
+ytpreds:model[`:predict_classes;<;npar t 0;`verbose pykw 1]
 show "Test Precision Score:";
-show metrics[`precision_score;<;npar t 0 ;npar ytpreds];
+show metrics[`:precision_score;<;npar t 0 ;npar ytpreds];
 show "Test Recall Score:";
-show metrics[`recall_score;<;npar t 0 ;npar ytpreds];
+show metrics[`:recall_score;<;npar t 0 ;npar ytpreds];
