@@ -18,7 +18,7 @@ np:.p.import\`numpy - returns an embedPy object with pointers to all methods ins
 
 ## Import a function inside a module 
 
-npar:.p.import[\`numpy;`array;\* or \< or \>] - returns a embedPy, q or foreign(python) object with the array() method as callable,qcallable, or pycallable  - 
+npar:.p.import[\`numpy;`:array;\* or \< or \>] - returns a embedPy, q or foreign(python) object with the array() method as callable,qcallable, or pycallable  - 
 #### The callable, pycallable or qcallable is implicit on usage of the [] in the above call, it automatically happens. 
 
 ### The above is equivalent to :
@@ -28,46 +28,46 @@ npar:.p.callable np\`array; / or qcallable or pycallable
 
 or 
 
-npar:np[\`array;\*]; 
+npar:np[\`:array;\*]; 
 
 ### Can also be used as :
 np:.p.import\`numpy;
 
-np[\`array;<;(1000 1000 1000;1000 1000 1000)]
+np[\`:array;<;(1000 1000 1000;1000 1000 1000)]
 
 ### Another example :
-drf:.p.import[\`dicom;\`read_file;\*] - .p.callable return of method read_file inside dicom
+drf:.p.import[\`dicom;\`:read_file;\*] - .p.callable return of method read_file inside dicom
 
 drf \<filename\>  - string file name
 
 ## Instantiating objects :
 pd:.p.import \`pandas
 
-pd[\`DataFrame;\*][] - calls default constructor and instantiates
+pd[\`:DataFrame;\*][] - calls default constructor and instantiates
 
 or
 
-.p.import[\`pandas;\`DataFrame;\*][] - calls default constructor and instantiates
+.p.import[\`pandas;\`:DataFrame;\*][] - calls default constructor and instantiates
 
 ### Non-default constructor :
 #### - Without parens, returns an embedPy object containing a \<class> - \<class DataFframe> in this case
-df:.p.import[\`pandas;\`DataFrame;\*] - get class , then instantiate later by 
+df:.p.import[\`pandas;\`:DataFrame;\*] - get class , then instantiate later by 
 df[\<appropriate object\>]; / instantiation happens here with value passed
 
 ## Chaining embedpy objects :
 q)np:.p.import\`numpy
 
-q)v:np[\`arange;\*;12]
+q)v:np[\`:arange;\*;12]
 
 q)v`
 
 0 1 2 3 4 5 6 7 8 9 10 11
 
-q)v[\`mean;<][]
+q)v[\`:mean;<][]
 
 5.5
 
-q)rs:v[\`reshape;<]
+q)rs:v[\`:reshape;<]
 
 q)rs[3;4]
 
@@ -83,7 +83,7 @@ q)rs[2;6]
 
 6 7 8 9 10 11
 
-q)np[\`arange;\*;12][\`reshape;\*;3;4]`
+q)np[\`:arange;\*;12][\`reshape;\*;3;4]`
 
 0 1 2  3 
 
@@ -91,7 +91,7 @@ q)np[\`arange;\*;12][\`reshape;\*;3;4]`
 
 8 9 10 11
 
-q)np[\`arange;\*;12][\`reshape;\*;3;4][\`T]`
+q)np[\`:arange;\*;12][\`reshape;\*;3;4][\`T]`
 
 0 1  2 
 
@@ -103,13 +103,13 @@ q)np[\`arange;\*;12][\`reshape;\*;3;4][\`T]`
 
 ## Equivalence of .p.import[] and .p.callable - 
 
-q)stdout:.p.callable(.p.import[\`sys]`stdout.write)
+q)stdout:.p.callable(.p.import[\`:sys]`:stdout.write)
 
 q)stdout"hello\n";
 
 hello
 
-q)stderr:.p.import[\`sys;`stderr.write;*]
+q)stderr:.p.import[\`sys;`:stderr.write;*]
 
 q)stderr"goodbye\n";
 
@@ -122,7 +122,7 @@ goodbye
 
 cph:.p.import \`sksurv.linear_model.coxph;
 
-cox:.p.import[\`sksurv;\`linear_model;\`coxph;\`CoxPHSurvivalAnalysis;\*]  
+cox:.p.import[\`sksurv;\`:linear_model;\`:coxph;\`:CoxPHSurvivalAnalysis;\*]  
 
 q)print  cox
 
@@ -134,7 +134,7 @@ q).p.import \`sksurv.nonparametric;
 {[c;r;x;a]embedPy[c;r;x;a]}[0;0;foreign]enlist
 
 
-q)km:.p.import[\`sksurv;\`nonparametric ;\`kaplan_meier_estimator;\*] 
+q)km:.p.import[\`sksurv;\`:nonparametric ;\`:kaplan_meier_estimator;\*] 
 
 q)print km
 
@@ -142,7 +142,7 @@ q)print km
 
 ### Not allowed - pyplot is a module, so must be loaded as below , since the [] tries to make the innermost import a .callable. 
 
-q)plt:.p.import[\`matplotlib;\`pyplot;\*] - 
+q)plt:.p.import[\`matplotlib;\`:pyplot;\*] - 
 
 AttributeError: module 'matplotlib' has no attribute 'pyplot'
 
@@ -151,7 +151,7 @@ plt:.p.import \`matplotlib.pyplot;
 ### Another example : MinMAxScaler inside sklearn.preprocessing
 One would try to instantiate a <class> directly, like so:
 
-mms:.p.import[\`sklearn;\`preprocessing;\`MinMaxScaler;\*][], expecting an object of class MinMaxScaler to be instantiated.
+mms:.p.import[\`sklearn;\`:preprocessing;\`:MinMaxScaler;\*][], expecting an object of class MinMaxScaler to be instantiated.
 
 But this call fails, with the error message : "AttributeError: module 'sklearn' has no attribute 'preprocessing'" 
 
@@ -159,7 +159,7 @@ So to use MinMaxScaler, do the following :
 
 pre:.p.import \`sklearn.preprocessing;
 
-mms:pre[\`MinMaxScaler;\*][]; / now that higher-level module is imported into shared memory already. 
+mms:pre[\`:MinMaxScaler;\*][]; / now that higher-level module is imported into shared memory already. 
 
 Then, mms safely contains :
 MinMaxScaler(copy=True, feature_range=(0, 1))
