@@ -41,7 +41,11 @@ g:(`$":",/:string (til 10)),\:`$".csv"
 / find parent comments
 q)k:t where (t`comment_id) in t`parent_id
 / link comments to parents
-w:where (k`comment_id) in t`parent_id
+/ w:where (k`comment_id) in t`parent_id
+/ w:select from t where parent_id in k`comment_id
+w:(select i from t where parent_id in k`comment_id)`x / need to verify this 
 c:t`comment
 {c[x]:k[x]`parent}each w
 t:([]c),'t;
+~
+
