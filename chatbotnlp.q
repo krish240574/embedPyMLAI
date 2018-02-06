@@ -9,4 +9,4 @@ ihp:{[dji;p]`t insert (`$dji`parent_id;`$dji`name;p;enlist dji`body;enlist dji`s
 ihnp:{[dji]`t insert (`$dji`parent_id;`$dji`name;"NO_PARENT";dji`body;dji`subreddit;dji`created_utc;dji`score)};
 upd:{[p;dji]update comment:p,parent:enlist dji`body from t where parent_id=`$dji`parent_id};
 fp:{[dji]g:gpd[dji];$[0<count e:ges(`$dji`parent_id);[if[((dji`score)>e 0);if[acc(dji`body);upd[g 1;dji]]]];[if acc(dji`body);$[g 0;if[2<=dji`score;ihp[dji;g 1]];ihnp[dji]]]]};
-fn:{show "Number f rows :";show count t;d:d where not 0 = count each d:read0(f;pos;n);cb:where each "}"=d;if[0<count cb[0];k:0^(where 0=count each cb)0;$[k>0;[d:k#d;if[0=count where "{"=d[0];d:(neg -1+count d)#d]];[d:(-1+count d)#d;if[0=count where "{"=d[0];d:(neg -1+count d)#d]]];dj::.j.k each d;pos+::k+count raze d;{fp[x];}each dj]};
+fn:{show count t;d:d where not 0 = count each d:read0(f;pos;n);cb:where each "}"=d;if[0=count cb[0];pos+::1];if[0<count cb[0];k:0^(where 0=count each cb)0;$[k>0;[d:k#d;if[0=count where "{"=d[0];d:(neg -1+count d)#d]];[d:(-1+count d)#d;if[0=count where "{"=d[0];d:(neg -1+count d)#d]]];$[(0<count raze d);[dj::.j.k each d;pos+::k+count raze d;{fp[x]}each dj];pos+::1]]};
