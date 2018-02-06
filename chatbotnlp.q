@@ -1,13 +1,12 @@
-pos:0;
+pos:"j"$0;
 t:([parent_id:`$()];comment_id:`$();parent:();comment:();subreddit:();created_utc:();score:());
-t:([]parent_id:();comment_id:();parent:();comment:();subreddit:();created_utc:();score:());
 f:`:/home/kkumar/Desktop/bigdata.json;
 n:100000;
 acc:{[body]$[(50<count(" " vs body)) or (1000<count body) or (body like "[deleted]") or (body like "[removed]");0;1]};
 ges:{[pid](select score from t where parent_id=pid)`score};
 gpd:{[dji] g:(select comment from t where comment_id = `$dji`parent_id)`comment;$[0<count g;:(1;enlist g 0);:(0;enlist dji`body)]};
 ihp:{[dji;p]`t insert (`$dji`parent_id;`$dji`name;p;enlist dji`body;enlist dji`subreddit;dji`created_utc;dji`score)};
-ihnp:{[dji]`t insert (`$dji`parent_id;`$dji`name;"NULL";dji`body;dji`subreddit;dji`created_utc;dji`score)};
+ihnp:{[dji]`t insert (`$dji`parent_id;`$dji`name;"NO_PARENT";dji`body;dji`subreddit;dji`created_utc;dji`score)};
 upd:{[p;dji]update comment:p,parent:enlist dji`body from t where parent_id=`$dji`parent_id};
-fp:{[dji]g:gpd[dji];if[2<=dji`score;e:ges(`$dji`parent_id);$[0<count e;[if[((dji`score)>e 0);if[acc(dji`body);upd[g 1;dji]]]];[if acc(dji`body);$[g 0;ihp[dji;g 1];ihnp[dji]]]]]};
-fn:{show "Number f rows :";show count t;d:read0(f;pos;n);cb:where each "}"=d;if[0<count cb[0];k:(where 0=count each cb)0;if[k>0;d:k#d];dj::.j.k each d;pos+::k+count raze d;{fp[x];}each dj]};
+fp:{[dji]g:gpd[dji];$[0<count e:ges(`$dji`parent_id);[if[((dji`score)>e 0);if[acc(dji`body);upd[g 1;dji]]]];[if acc(dji`body);$[g 0;if[2<=dji`score;ihp[dji;g 1]];ihnp[dji]]]]};
+fn:{show "Number f rows :";show count t;d:d where not 0 = count each d:read0(f;pos;n);cb:where each "}"=d;if[0<count cb[0];k:0^(where 0=count each cb)0;$[k>0;[d:k#d;if[0=count where "{"=d[0];d:(neg -1+count d)#d]];[if[0=count where "{"=d[0];d:(neg -1+count d)#d]]];dj::.j.k each d;pos+::k+count raze d;{fp[x];}each dj]};
