@@ -1,5 +1,7 @@
 # Machine learning and AI code using embedPy - call python inside q
 
+predmaint-distributed.q - Tensorflow deep learning model for Cox regression - distributed training using Horovod(eng.uber.com/horovod)
+
 datasciencebowl2017.q - Data science bowl 2017 on kaggle - https://www.kaggle.com/c/data-science-bowl-2017 - medical images, convolutional NN(3D).
 
 statoil.q - Statoil competition at Kaggle - https://www.kaggle.com/c/statoil-iceberg-classifier-challenge/ - satellite images, convolutional NN(2D).
