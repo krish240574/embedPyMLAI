@@ -1,3 +1,7 @@
+/ mpirun --allow-run-as-root -np 4   -H localhost:4   -bind-to none -map-by slot q predmaint-distributed.q - 
+/ this runs only on localhost with 4 threads for now
+/ To run on 4 machines with 1 GPU/CPU each - (yet to test, will test with 4 CPUs - install of OpenMPI on 4 hosts and config in progress
+/ mpirun -np 16 -H host1:1,host2:1,host3:1,host4:1 -x NCCL_DEBUG=INFO -x LD_LIBRARY_PATH =mca pml ob1 -mca btl ^openib q predmaint-distributed.q
 \l p.q
 
 seq:.p.import[`keras;`:models;`:Sequential;*]
