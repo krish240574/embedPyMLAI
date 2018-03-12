@@ -1,6 +1,6 @@
 # Machine learning and AI code using embedPy - call python inside q
 
-predmaint-distributed.q - Tensorflow deep learning model for Cox regression - distributed training using Horovod(eng.uber.com/horovod)
+predmaint-distributed.q - Tensorflow deep learning model for Cox regression - distributed training using Horovod(https://eng.uber.com/horovod)
 
 datasciencebowl2017.q - Data science bowl 2017 on kaggle - https://www.kaggle.com/c/data-science-bowl-2017 - medical images, convolutional NN(3D).
 
