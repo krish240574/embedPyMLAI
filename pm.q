@@ -1,3 +1,4 @@
+/ https://www.kaggle.com/nafisur/predictive-maintenance-using-lstm-on-sensor-data
 \l p.q
 npar:.p.import [`numpy;`:array;>];
 pd:.p.import[`pandas;`:DataFrame;*];
