@@ -11,10 +11,9 @@ test:(colStr;enlist ",")0: `:test.csv
 test:delete x from test
 
 all_data:train,test
-
-
-
-
-
-
-
+/ use the date field to get separate values
+all_data:all_data,'([]day:`dd$(all_data`date))
+all_data:all_data,'([]month:`mm$(all_data`date))
+all_data:all_data,'([]year:`year$(all_data`date))
+all_data:all_data,'([]weekofyear:{1 + (x - `week $ `date $ 12 xbar `month $ x) div 7}all_data`date)
+all_data:all_data,'([]dayofweek:`Sat`Sun`Mon`Tue`Wed`Thu`Fri (all_data`date) mod 7)
