@@ -26,7 +26,7 @@ all_data:all_data,'([]dayofweek:`Sat`Sun`Mon`Tue`Wed`Thu`Fri (all_data`date) mod
 /     :(0=(`year$dt) mod 4)+ret
 /    }
 / this is 24 times faster than the above code
-dayofyear:{1+dt - `date $ 12 xbar `month $ x}all_data`date
+all_data:all_data,'([]dayofyear:{1+x - `date $ 12 xbar `month $ x}all_data`date)
 
 
 
