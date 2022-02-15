@@ -17,3 +17,7 @@ all_data:all_data,'([]month:`mm$(all_data`date))
 all_data:all_data,'([]year:`year$(all_data`date))
 all_data:all_data,'([]weekofyear:{1 + (x - `week $ `date $ 12 xbar `month $ x) div 7}all_data`date)
 all_data:all_data,'([]dayofweek:`Sat`Sun`Mon`Tue`Wed`Thu`Fri (all_data`date) mod 7)
+doy:{[dt]dom:(31 28 31 30 31 30 31 31 30 31 30 31);
+    ret:(`dd$dt)+sum each dom each til each -1+`mm$dt;
+    :(0=(`year$dt) mod 4)+ret}
+
