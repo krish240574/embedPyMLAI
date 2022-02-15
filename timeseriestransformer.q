@@ -27,6 +27,16 @@ all_data:all_data,'([]dayofweek:`Sat`Sun`Mon`Tue`Wed`Thu`Fri (all_data`date) mod
 /    }
 / this is 24 times faster than the above code
 all_data:all_data,'([]dayofyear:{1+x - `date $ 12 xbar `month $ x}all_data`date)
+all_data:delete row_id,date from all_data
+train:all_data[til count train]
+test:all_data[(count train)+til count test]
+
+/ Sliding window - window size = 65 for now. 
+/ Generate indices and index in one shot
+gensw:{x (til (y+count x)) +\: til y}
+trsw:gensw[train;65]
+tstsw:gensw[test;65]
+
 
 
 
