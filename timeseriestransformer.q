@@ -36,7 +36,9 @@ test:all_data[(count train)+til count test]
 gensw:{x (til (y+count x)) +\: til y}
 trsw:gensw[train;65]
 tstsw:gensw[test;65]
-
+/ load the TimeSeriesTransformer and Time2Vec classes as python code. 
+/ Can access them as q variables later
+\l inc/tst.p
 
 
 
