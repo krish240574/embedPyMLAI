@@ -20,7 +20,10 @@ event_df:tb,btrain
 // Generate search table from train and test data 
 sColStr:`session_id_hash`query_vector`clicked_skus_hash`product_skus_hash`server_timestamp_epoch_ms
 sc:"SSSSI"
-.Q.fs[{`strain insert flip sColStr!(sc;",")0:x}]`:search_train.csv
+/ removed all commas and replaced with spaces inside search_train.csv
+/ removed single quotes(') and [ and ]
+
+.Q.fs[{`strain insert flip sColStr!(sc;" ")0:x}]`:search_train.csv / space is the separator
 strain:strain,'([]event_type:(count strain)#"search";is_search:(count strain)#1;is_test:(count strain)#0)
 
 strain:strain where not null strain`product_skus_hash
