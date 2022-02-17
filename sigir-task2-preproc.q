@@ -6,7 +6,7 @@
 / Get browsing data and metge with test dataset to create event dataset
 bColStr:`session_id_hash`event_type`product_action`product_sku_hash`server_timestamp_epoch_ms`hashed_url
 c:"SSSSIS"
-.Q.fs[{`btrain insert flip bColStr!(c;",")0:x}]`:browsingtrain.csv
+.Q.fs[{`btrain insert flip bColStr!(c;",")0:x}]`:browsing_train.csv
 btrain:btrain,'([]is_search:(count btrain)#0;is_test:(count btrain)#0;nb_after_add:(count btrain)#0)
 q)p)import json
 q)p)test_queries = json.load(open("./intention_test_phase_2.json"))
