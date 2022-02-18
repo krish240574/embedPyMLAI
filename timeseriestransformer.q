@@ -47,7 +47,7 @@ T2VDIM:3
 lyr:.p.import`keras.layers
 x:lyr[`:Input;(WINDOWSIZE,NUMCOLS)]
 td:lyr[`:TimeDistributed;(.p.get`Time2Vec)[T2VDIM-1]]
-x:tx[x] /Stack layers, as in the Tensorflow functional API
+x:td[x] /Stack layers, as in the Tensorflow functional API
 
 
 
