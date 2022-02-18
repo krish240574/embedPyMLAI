@@ -39,6 +39,15 @@ tstsw:gensw[test;65]
 / load the TimeSeriesTransformer and Time2Vec classes as python code. 
 / Can access them as q variables later
 \l inc/tst.p
+\l p.q
+WINDOWSIZE:65
+NUMCOLS:16
+T2VDIM:3
+/ embedpy code to create our TimeSeriesTransformer model
+lyr:.p.import`keras.layers
+x:lyr[`:Input;(WINDOWSIZE,NUMCOLS)]
+td:lyr[`:TimeDistributed;(.p.get`Time2Vec)[T2VDIM-1]]
+x:tx[x] /Stack layers, as in the Tensorflow functional API
 
 
 
