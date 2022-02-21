@@ -44,5 +44,10 @@ strain:tmp
 impression_size:([]impression_size:count each "," vs 'raze over 'string strain`product_skus_hash)
 / similar treatment for clicked_skus_hash
 clicks_size:([]clicks_size:count each raze over 'string each strain`clicked_skus_hash)
+/ Define the session search as a sequence of search queries and the interacted items
+gstrain:select by session_id_hash from `session_id_hash`server_timestamp_epoch_ms xasc strain
+/ "F$"," vs 'raze over 'string gstrain`query_vector
+
+
 
 
