@@ -20,10 +20,7 @@ event_df:tb,btrain
 // Generate search table from train and test data 
 sColStr:`session_id_hash`query_vector`clicked_skus_hash`product_skus_hash`server_timestamp_epoch_ms
 sc:"SSSSI"
-/ removed all commas and replaced with spaces inside search_train.csv
-/ removed single quotes(') and [ and ]
-
-.Q.fs[{`strain insert flip sColStr!(sc;" ")0:x}]`:search_train.csv / space is the separator
+.Q.fs[{`strain insert flip sColStr!(sc;",")0:x}]`:search_train.csv
 strain:strain,'([]event_type:(count strain)#"search";is_search:(count strain)#1;is_test:(count strain)#0)
 
 strain:strain where not null strain`product_skus_hash
@@ -39,3 +36,10 @@ tbl:(f 0)`query
 tbl:tbl,'([]nb_after_add:(count tbl)#0;is_test:(count tbl)#1)
 tbs:tbs where (tbs:flip ((cols strain))!(tbl(cols strain)))`is_search
 strain:strain,tbs
+tmp:(select by session_id_hash from strain)
+tmp:tmp,'([]nb_queries:(count tmp)#0)
+tmp:strain lj tmp
+strain:tmp
+/ product_skus_hash is read as a column of lists, need to convert to strings as follows
+impression_size:([]impression_size:count each "," vs 'raze over 'string strain`product_skus_hash)
+
