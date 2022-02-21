@@ -50,6 +50,32 @@ FF_DIM:256
 DROPOUT_RATE:0.0
 mult:.p.import[`tensorflow]`:math.multiply / directly access the method inside a module this way
 add:.p.import[`tensorflow]`:math.add
+lyr:.p.import`tensorflow.keras.layers
+
+inp:x:lyr[`:Input;(65,16)];
+t2v:(.p.get`Time2Vec)[2];
+temb:lyr[`:TimeDistributed;t2v][x];
+.p.set[`temb;temb];.p.set[`x;x];.p.set[`conc;lyr[`:Concatenate;`axis pykw -1]];x:.p.eval"conc([x,temb])";
+x:(lyr[`:LayerNormalization;`epsilon pykw 0.000001])[x];
+flt:lyr[`:Flatten][];
+dense128:lyr[`:Dense;128;`activation pykw "selu"]
+dropout:lyr[`:Dropout;DROPOUT_RATE]
+dense1:lyr[`:Dense;1;`activation pykw "linear"]
+mdl:.p.import[`tensorflow]`:keras.models.Model
+
+finp:x;
+func:{0N!x;;x_old:finp;finp::((.p.get`TransformerBlock)[EMBED_DIM;INPSL + (INPSL * T2VDIM); N_HEADS; FF_DIM; DROPOUT_RATE])[finp];.p.print finp;finp::add[mult[0.1;finp];mult[0.9;x_old]];:x+1}
+(7>)func \1
+finp:flt[finp] /Flatten
+finp:dense128[finp]
+finp:dropout[finp]
+finp:dense1[finp]
+out:finp
+model:mdl[inp;out]
+
+
+
+
 
 / embedpy code to create our TimeSeriesTransformer model - this hangs, need to debug the while, which gets stuck
 get_model:{x:lyr[`:Input;(65,16)];t2v:(.p.get`Time2Vec)[2];temb:lyr[`:TimeDistributed;t2v][x];.p.set[`temb;temb];.p.set[`x;x];.p.set[`conc;lyr[`:Concatenate;`axis pykw -1]];x:.p.eval"conc([x,temb])";x:(lyr[`:LayerNormalization;`epsilon pykw 0.000001])[x];c:6;while[c:-1;x_old:x;x:((.p.get`TransformerBlock)[EMBED_DIM;INPSL + (INPSL * T2VDIM); N_HEADS; FF_DIM; DROPOUT_RATE])[x];x:add[mult[0.1;x];mult[0.9;x]]]}
