@@ -42,4 +42,7 @@ tmp:strain lj tmp
 strain:tmp
 / product_skus_hash is read as a column of lists, need to convert to strings as follows
 impression_size:([]impression_size:count each "," vs 'raze over 'string strain`product_skus_hash)
+/ similar treatment for clicked_skus_hash
+clicks_size:([]clicks_size:count each raze over 'string each strain`clicked_skus_hash)
+
 
