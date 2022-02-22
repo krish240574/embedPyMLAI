@@ -50,3 +50,8 @@ class TransformerBlock(layers.Layer):
         ffn_output = self.ffn(out1)
         ffn_output = self.dropout2(ffn_output, training = training)
         return self.layernorm2(out1 + ffn_output)
+       
+def smape(y_true, y_pred):
+    y_true, y_pred = tf.cast(y_true, tf.float64), tf.cast(y_pred, tf.float64)
+    return 1 / len(y_true) * tf.reduce_sum(2 * tf.abs(y_pred - y_true) / (tf.abs(y_true) + tf.abs(y_pred)) * 100)
+
