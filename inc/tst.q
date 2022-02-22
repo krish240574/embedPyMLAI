@@ -24,5 +24,7 @@ get_model:{[inshape;t2vdim]
  finp::dropout[finp];
  finp::dense1[finp];
  out:finp;
- :model:mdl[inp;out]
+ model:mdl[inp;out];
+ model[`:compile;(.p.import[`tensorflow]`:keras.optimizers.Adam)[0.001];"mae";`metrics pykw (.p.get[`smape;<])];
+ :model
  }
