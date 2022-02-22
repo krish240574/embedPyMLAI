@@ -2,7 +2,7 @@
 / Can access them as q variables later
 \l inc/tst.p
 \l p.q
-\l tst.q / contains get_model[] and other functions
+\l inc/tst.q / contains get_model[] and other functions
 
 / this file demonstrates using a time-series transformer
 / code ported from https://www.kaggle.com/krish240574/tutorial-time-series-transformer-time2vec
