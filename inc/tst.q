@@ -8,7 +8,7 @@ dense128:lyr[`:Dense;128;`activation pykw "selu"]
 dropout:lyr[`:Dropout;DROPOUT_RATE]
 dense1:lyr[`:Dense;1;`activation pykw "linear"]
 mdl:.p.import[`tensorflow]`:keras.models.Model
-\l tst.p
+\l inc/tst.p
 finp::()
 get_model:{[inshape;t2vdim]
  inp:xx:lyr[`:Input;inshape];
