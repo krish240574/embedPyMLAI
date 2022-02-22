@@ -43,10 +43,3 @@ gensw:{x (til (y+count x)) +\: til y}
 trsw:gensw[train;65]
 tstsw:gensw[test;65]
 m:get_model[(WINDOWSIZE,INPSL);T2VDIM]
-
-
-
-
-
-
-
