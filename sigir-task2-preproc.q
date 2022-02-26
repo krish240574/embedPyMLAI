@@ -1,7 +1,7 @@
 / Preproc code for task2 - purchase prediction for the SIGIR competition 
 / https://sigir-ecom.github.io/data-task.html
 / https://github.com/NVIDIA-Merlin/competitions/blob/main/SIGIR_eCommerce_Challenge_2021/task2_purchase_prediction/code/preprocessing/preproc-V1/coveo-ETL-NVT-Task2-V1-phase2.ipynb
-
+/ data available and explained at : https://github.com/coveooss/SIGIR-ecom-data-challenge
 
 / Get browsing data and metge with test dataset to create event dataset
 bColStr:`session_id_hash`event_type`product_action`product_sku_hash`server_timestamp_epoch_ms`hashed_url
