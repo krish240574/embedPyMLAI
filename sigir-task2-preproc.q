@@ -25,8 +25,8 @@ strain:strain,'([]event_type:(count strain)#"search";is_search:(count strain)#1;
 
 strain:strain where not null strain`product_skus_hash
 (strain`query_vector):" " vs 'string strain`query_vector
-(strain`clicked_skus_hash):" " vs 'string strain`clicked_skus_hash
-(strain`product_skus_hash):" " vs 'string strain`product_skus_hash
+(strain`clicked_skus_hash):"," vs 'string strain`clicked_skus_hash
+(strain`product_skus_hash):"," vs 'string strain`product_skus_hash
 
 p)import json
 p)test_queries = json.load(open("./intention_test_phase_2.json"))
