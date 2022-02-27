@@ -41,6 +41,7 @@ tbl:(f 0)`query
 / add column is_test
 tbl:tbl,'([]nb_after_add:(count tbl)#0;is_test:(count tbl)#1)
 / Add search events from test data
+/ Concat test and train search data
 tbs:tbs where (tbs:flip ((cols strain))!(tbl(cols strain)))`is_search
 strain:strain,tbs
 / Compute number of returned and clicked items 
@@ -49,14 +50,13 @@ strain:strain,'([]impression_size:count each strain`product_skus_hash)
 wheregt0:where first each 0<count each 'strain`clicked_skus_hash
 / assign number of clicks
 strain:strain,'([]clicked_size:@[z;wheregt0;:;count each (strain`clicked_skus_hash )wheregt0])
+/ Compute number of search queries per session 
 tmp:(select by session_id_hash from strain)
 tmp:tmp,'([]nb_queries:(count tmp)#0)
 tmp:strain lj tmp
 strain:tmp
-/ product_skus_hash is read as a column of lists, need to convert to strings as follows
-impression_size:([]impression_size:count each "," vs 'raze over 'string strain`product_skus_hash)
-/ similar treatment for clicked_skus_hash
-clicks_size:([]clicks_size:count each raze over 'string each strain`clicked_skus_hash)
+/ Update list of impressions by the clicked item when it is missing
+/ need to figure this out - TBD 02/27/2022
 / Define the session search as a sequence of search queries and the interacted items
 gstrain:select by session_id_hash from `session_id_hash`server_timestamp_epoch_ms xasc strain
 / "F$"," vs 'raze over 'string gstrain`query_vector
