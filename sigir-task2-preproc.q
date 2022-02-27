@@ -3,7 +3,7 @@
 / https://github.com/NVIDIA-Merlin/competitions/blob/main/SIGIR_eCommerce_Challenge_2021/task2_purchase_prediction/code/preprocessing/preproc-V1/coveo-ETL-NVT-Task2-V1-phase2.ipynb
 / data available and explained at : https://github.com/coveooss/SIGIR-ecom-data-challenge
 
-/ Get browsing data and metge with test dataset to create event dataset
+/ Get browsing data and merge with test dataset to create event dataset
 bColStr:`session_id_hash`event_type`product_action`product_sku_hash`server_timestamp_epoch_ms`hashed_url
 c:"SSSSIS"
 .Q.fs[{`btrain insert flip bColStr!(c;",")0:x}]`:browsing_train.csv
@@ -24,9 +24,12 @@ sc:"SSSSI"
 strain:strain,'([]event_type:(count strain)#"search";is_search:(count strain)#1;is_test:(count strain)#0)
 
 strain:strain where not null strain`product_skus_hash
-(strain`query_vector):" " vs 'string strain`query_vector
-(strain`clicked_skus_hash):"," vs 'string strain`clicked_skus_hash
-(strain`product_skus_hash):"," vs 'string strain`product_skus_hash
+/ strain`query vector is loaded as a list of lists of strings, do this to store as list of lists of floats
+(strain`query_vector):"F"${"," vs x} each raze over 'string each select query_vector from strain
+/ Similar treatment for clicked_skus_hash, loaded as a list of lists of `symbols
+(strain`clicked_skus_hash):"," vs 'string each (select clicked_skus_hash from strain)`clicked_skus_hash 
+/ Similar treatment for product_skus_hash
+(strain`product_skus_hash):"," vs 'string each (select product_skus_hash from strain)`product_skus_hash 
 
 p)import json
 p)test_queries = json.load(open("./intention_test_phase_2.json"))
