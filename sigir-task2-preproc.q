@@ -46,22 +46,22 @@ tbs:tbs where (tbs:flip ((cols strain))!(tbl(cols strain)))`is_search
 strain:strain,tbs
 / Compute number of returned and clicked items 
 strain:strain,'([]impression_size:count each strain`product_skus_hash)
-/ little trickstery for clicked_size 
-wheregt0:where first each 0<count each 'strain`clicked_skus_hash
-/ assign number of clicks
-strain:strain,'([]clicked_size:@[z;wheregt0;:;count each (strain`clicked_skus_hash )wheregt0])
+/ clicked_size - number of items clicked on, in each search session
+/ first, clicked_skus_hash has too many repetitions of clicked_skus_hashes, replace with distinct values
+clicked:strain`clicked_skus_hash
+f:where raze not  {"" in x}each clicked / find non-zero sized lists
+strain:((delete clicked_skus_hash from strain),'([]clicked_skus_hash:@[clicked;f;:;{distinct x}each clicked f]))
+/ Add clicked_size to the main table
+(strain`clicked_size):@[(count strain)#0;f;:;count each kk f]
+ 
+/ Update list of impressions by the clicked item when it is missing - union of product_skus_hash and clicked_skus_hash
+
 / Compute number of search queries per session 
 tmp:(select by session_id_hash from strain)
 tmp:tmp,'([]nb_queries:(count tmp)#0)
 tmp:strain lj tmp
 strain:tmp
-/ Update list of impressions by the clicked item when it is missing
-/ first, clicked_skus_hash has too many repetitions of clicked_skus_hashes, replace with distinct values
-clicked:strain`clicked_skus_hash
-f:where raze not  {"" in x}each clicked
-strain:((delete clicked_skus_hash from strain),'([]clicked_skus_hash:@[clicked;f;:;{distinct x}each clicked f]))
-/ Add clicked_size to the main table
-(strain`clicked_size):@[(count strain)#0;f;:;count each kk f]
+
 
 / Define the session search as a sequence of search queries and the interacted items
 gstrain:select by session_id_hash from `session_id_hash`server_timestamp_epoch_ms xasc strain
