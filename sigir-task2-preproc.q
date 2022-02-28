@@ -56,7 +56,13 @@ tmp:tmp,'([]nb_queries:(count tmp)#0)
 tmp:strain lj tmp
 strain:tmp
 / Update list of impressions by the clicked item when it is missing
-/ need to figure this out - TBD 02/27/2022
+/ first, clicked_skus_hash has too many repetitions of clicked_skus_hashes, replace with distinct values
+clicked:strain`clicked_skus_hash
+f:where raze not  {"" in x}each clicked
+strain:((delete clicked_skus_hash from strain),'([]clicked_skus_hash:@[clicked;f;:;{distinct x}each clicked f]))
+/ Add clicked_size to the main table
+(strain`clicked_size):@[(count strain)#0;f;:;count each kk f]
+
 / Define the session search as a sequence of search queries and the interacted items
 gstrain:select by session_id_hash from `session_id_hash`server_timestamp_epoch_ms xasc strain
 / "F$"," vs 'raze over 'string gstrain`query_vector
