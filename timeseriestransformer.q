@@ -43,10 +43,10 @@ gensw:{x (til (y+count x)) +\: til y}
 trsw:gensw[train;65]
 tstsw:gensw[test;65]
 m:get_model[(WINDOWSIZE,INPSL);T2VDIM]
-NUM:FOLDS:10
+NUM_FOLDS:10
 TSETSZ:floor (count train)%NUM_FOLDS
 f:{(til (x*TSETSZ);(x*TSETSZ)+til TSETSZ)}each 1+til NUM_FOLDS
 trainlist:(train f)[;0]);valtrainlist:(train f)[;1])
-ylist:(y f)[;0];valylist:(y f)[;1])
+ylist:(y f)[;0];valylist:(y f)[;1]
 
 
