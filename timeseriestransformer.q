@@ -52,9 +52,10 @@ ylist:(y f)[;0];valylist:(y f)[;1]
 
 / this is a workaround so I can use the get_dummies and get all data inside q, without entering the python world, per se
 pd:.p.import`pandas
+tmp:flip all_data cols all_data
 k:{pd[`:get_dummies;string tmp[;x]]}each til 3
-q)npar:.p.import[`:numpy].array
-q)kk:({"I"$string each (npar k x)`}each til 3) 0
+npar:.p.import[`:numpy].array
+kk:({"I"$string each (npar k x)`}each til 3) 0
 / Now to add column names for the categorical values, and we're good to go
 
 
