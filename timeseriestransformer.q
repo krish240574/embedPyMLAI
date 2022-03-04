@@ -50,12 +50,16 @@ f:{(til (x*TSETSZ);(x*TSETSZ)+til TSETSZ)}each 1+til NUM_FOLDS
 trainlist:(train f)[;0];valtrainlist:(train f)[;1]
 ylist:(y f)[;0];valylist:(y f)[;1]
 
-/ this is a workaround so I can use the get_dummies and get all data inside q, without entering the python world, per se
+/ this is a workaround so I can use pd.get_dummies() and get all data inside q, without entering the python world, per se
 pd:.p.import`pandas
 tmp:flip all_data cols all_data
+/ only the first 3 columns need to be one-hot encoded
 k:{pd[`:get_dummies;string tmp[;x]]}each til 3
+/ k is a "foreign" object, can be converted to a np.array() in the python space
+/ the np.array is returned as rows of 0x, rows of bytes, convert them to string and to int 
 npar:.p.import[`:numpy].array
 kk:({"I"$string each (npar k x)`}each til 3) 0
+
 / Now to add column names for the categorical values, and we're good to go
 
 
