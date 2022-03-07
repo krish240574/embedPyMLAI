@@ -61,5 +61,8 @@ npar:.p.import[`numpy]`:array
 kk:({"I"$string each (npar k x)`}each til 3) 0
 
 / Now to add column names for the categorical values, and we're good to go
+cc:`$"kumar",/:string til 8 / will change this to proper column names
+addtbl:flip cc!flip raze over 'flip {"I"$string each (npar k x)`}each til 3
+
 
 
