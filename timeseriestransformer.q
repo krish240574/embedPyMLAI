@@ -57,7 +57,7 @@ tmp:flip all_data cols all_data
 k:{pd[`:get_dummies;string tmp[;x]]}each til 3
 / k is a "foreign" object, can be converted to a np.array() in the python space
 / the np.array is returned as rows of 0x, rows of bytes, convert them to string and to int 
-npar:.p.import[`:numpy].array
+npar:.p.import[`numpy]`:array
 kk:({"I"$string each (npar k x)`}each til 3) 0
 
 / Now to add column names for the categorical values, and we're good to go
