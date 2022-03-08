@@ -56,16 +56,16 @@ tmp:flip all_data cols all_data
 / only the first 3 columns need to be one-hot encoded
 k:{pd[`:get_dummies;string tmp[;x]]}each til 3
 / k is a "foreign" object, can be converted to a np.array() in the python space
-/ the np.array is returned as rows of 0x, rows of bytes, convert them to string and to int 
+/ the np.array is returned as rows of 0x, rows of bytes, convert them to int 
 npar:.p.import[`numpy]`:array
-raze over 'flip {"h"$ ' ((npar each k) x)`}each til 3
-
-
-kk:({"I"$string each (npar k x)`}each til 3) 0
-
+kk:raze over 'flip {"h"$ ' ((npar each k) x)`}each til 3
+/ get count of distinct values of each categorical column
+cc:count each {"h"$(((npar each k)x)`) 0}each til 3
 / Now to add column names for the categorical values, and we're good to go
-cc:`$"kumar",/:string til 8 / will change this to proper column names
-addtbl:flip cc!flip raze over 'flip {"I"$string each (npar k x)`}each til 3
+/ form column string cat1, cat2, cat3, etc
+cl:raze {`$(string (cols all_data) x),/: string til cc x}each til count cc
+all_data:all_data,'flip cl!flip kk
+all_data:delete country, store, product from all_data
 
 
 
