@@ -36,8 +36,30 @@ all_data:all_data,'([]daysinmonth:{dom:(31 28 31 30 31 30 31 31 30 31 30 31);f:d
 / this is 24 times faster than the above code
 all_data:all_data,'([]dayofyear:{1+x - `date $ 12 xbar `month $ x}all_data`date)
 all_data:delete row_id,date from all_data
+
+/ Now to one-hot encode the categorical columns
+/ this is a workaround so I can use pd.get_dummies() and get all data inside q, without entering the python world, per se
+pd:.p.import`pandas
+npar:.p.import[`numpy]`:array
+
+tmp:flip all_data cols all_data
+/ only the first 3 columns need to be one-hot encoded
+k:{pd[`:get_dummies;string tmp[;x]]}each til 3
+/ k is a "foreign" object, can be converted to a np.array() in the python space
+/ the np.array is returned as rows of 0x, rows of bytes, convert them to int 
+kk:raze over 'flip {"h"$ ' ((npar each k) x)`}each til 3
+/ get count of distinct values of each categorical column
+cc:count each {"h"$(((npar each k)x)`) 0}each til 3
+/ Now to add column names for the categorical values, and we're good to go
+/ form column string cat1, cat2, cat3, etc
+cl:raze {`$(string (cols all_data) x),/: string til cc x}each til count cc
+all_data:all_data,'flip cl!flip kk
+
+/ one-hot encoded table ready
+all_data:delete country, store, product from all_data
 train:all_data[til count train]
 test:all_data[(count train)+til count test]
+
 / get transformer model defined inside inc/tst.p
 m:get_model[(WINDOWSIZE,INPSL);T2VDIM]
 NUM_FOLDS:10
@@ -46,23 +68,6 @@ TSETSZ:floor (count train)%NUM_FOLDS
 f:{(til (x*TSETSZ);(x*TSETSZ)+til TSETSZ)}each 1+til NUM_FOLDS
 trainlist:(train f)[;0];valtrainlist:(train f)[;1]
 ylist:(y f)[;0];valylist:(y f)[;1]
-
-/ this is a workaround so I can use pd.get_dummies() and get all data inside q, without entering the python world, per se
-pd:.p.import`pandas
-tmp:flip all_data cols all_data
-/ only the first 3 columns need to be one-hot encoded
-k:{pd[`:get_dummies;string tmp[;x]]}each til 3
-/ k is a "foreign" object, can be converted to a np.array() in the python space
-/ the np.array is returned as rows of 0x, rows of bytes, convert them to int 
-npar:.p.import[`numpy]`:array
-kk:raze over 'flip {"h"$ ' ((npar each k) x)`}each til 3
-/ get count of distinct values of each categorical column
-cc:count each {"h"$(((npar each k)x)`) 0}each til 3
-/ Now to add column names for the categorical values, and we're good to go
-/ form column string cat1, cat2, cat3, etc
-cl:raze {`$(string (cols all_data) x),/: string til cc x}each til count cc
-all_data:all_data,'flip cl!flip kk
-all_data:delete country, store, product from all_data
 
 / Sliding window - window size = 65 for now. 
 / Generate indices and index in one shot
