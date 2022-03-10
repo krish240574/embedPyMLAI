@@ -61,7 +61,6 @@ train:all_data[til count train]
 test:all_data[(count train)+til count test]
 
 / get transformer model defined inside inc/tst.p
-m:get_model[(WINDOWSIZE,INPSL);T2VDIM]
 NUM_FOLDS:10
 TSETSZ:floor (count train)%NUM_FOLDS
 / this code mimics the TimeSeriesSplit in python - form NUM_FOLDS lists
@@ -74,6 +73,18 @@ ylist:(y f)[;0];valylist:(y f)[;1]
 gensw:{x (til (y+count x)) +\: til y}
 trsw:gensw[train;65]
 tstsw:gensw[test;65]
+
+/ training routine 
+ft:((.p.import`sklearn.preprocessing)`:RobustScaler)[][`:fit_transform;<]
+es:(.p.import`keras.callbacks)[`:EarlyStopping;<;pykwargs `monitor`patience`verbose`mode`restore_best_weights!(smape;700;0;"min";`True)]
+
+trf:{
+ ca:cols all_data;
+ x_tr_sw:gensw[ft flip (trainlist x)ca;65];y_tr_sw:gensw[ft flip (y x) cols y;65];x_v_sw:gensw[ft flip (valtrainlist x)ca;65];y_v_sw:gensw[ft flip (valylist x) cols y;65];
+ m:get_model[(WINDOWSIZE,INPSL);T2VDIM];
+ }each til NUM_FOLDS
+
+
 
 
 
