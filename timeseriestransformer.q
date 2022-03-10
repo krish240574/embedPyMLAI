@@ -38,12 +38,7 @@ all_data:all_data,'([]dayofyear:{1+x - `date $ 12 xbar `month $ x}all_data`date)
 all_data:delete row_id,date from all_data
 train:all_data[til count train]
 test:all_data[(count train)+til count test]
-
-/ Sliding window - window size = 65 for now. 
-/ Generate indices and index in one shot
-gensw:{x (til (y+count x)) +\: til y}
-trsw:gensw[train;65]
-tstsw:gensw[test;65]
+/ get transformer model defined inside inc/tst.p
 m:get_model[(WINDOWSIZE,INPSL);T2VDIM]
 NUM_FOLDS:10
 TSETSZ:floor (count train)%NUM_FOLDS
@@ -68,6 +63,12 @@ cc:count each {"h"$(((npar each k)x)`) 0}each til 3
 cl:raze {`$(string (cols all_data) x),/: string til cc x}each til count cc
 all_data:all_data,'flip cl!flip kk
 all_data:delete country, store, product from all_data
+
+/ Sliding window - window size = 65 for now. 
+/ Generate indices and index in one shot
+gensw:{x (til (y+count x)) +\: til y}
+trsw:gensw[train;65]
+tstsw:gensw[test;65]
 
 
 
