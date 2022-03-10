@@ -22,10 +22,9 @@ all_data:all_data,'([]day:`dd$(all_data`date))
 all_data:all_data,'([]month:`mm$(all_data`date))
 all_data:all_data,'([]year:`year$(all_data`date))
 all_data:all_data,'([]weekofyear:{1 + (x - `week $ `date $ 12 xbar `month $ x) div 7}all_data`date)
-all_data:all_data,'([]dayofweek:`Mon`Tue`Wed`Thu`Fri`Sat`Sun(all_data`date) mod 7)
+all_data:all_data,'([]dayofweek:(all_data`date) mod 7)
 all_data:all_data,'([]weekday:(all_data`date) mod 7)
 all_data:all_data,'([]daysinmonth:{dom:(31 28 31 30 31 30 31 31 30 31 30 31);f:dom -1+`mm$all_data`date;:f:@[f;where {mod[;2] sum 0=x mod\: 4 100 400} each `year$all_data`date;:;29]}[])
-
 / this is slow code - owing to too many each calls
 / dayofyear:{[dt]dom:(31 28 31 30 31 30 31 31 30 31 30 31);
 /    $[
