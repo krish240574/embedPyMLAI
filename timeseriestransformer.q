@@ -73,16 +73,20 @@ ylist:(y f)[;0];valylist:(y f)[;1]
 gensw:{x (til (y+count x)) +\: til y}
 trsw:gensw[train;65]
 tstsw:gensw[test;65]
-
+smape:.p.get`smape;
 / training routine 
 ft:((.p.import`sklearn.preprocessing)`:RobustScaler)[][`:fit_transform;<]
 es:(.p.import`keras.callbacks)[`:EarlyStopping;<;pykwargs `monitor`patience`verbose`mode`restore_best_weights!(smape;700;0;"min";`True)]
 
 trf:{
  ca:cols all_data;
- x_tr_sw:gensw[ft flip (trainlist x)ca;65];y_tr_sw:gensw[ft flip (y x) cols y;65];x_v_sw:gensw[ft flip (valtrainlist x)ca;65];y_v_sw:gensw[ft flip (valylist x) cols y;65];
+ x_tr_sw:gensw[ft flip (trainlist x)ca;65];y_tr_sw:gensw[ft flip (ylist x) cols y;65];
+ x_v_sw:gensw[ft flip (valtrainlist x)ca;65];y_v_sw:gensw[ft flip (valylist x) cols y;65];
+ .p.set[`xv;x_v_sw];.p.set[`yv;y_v_sw;
+ m[`:fit;x_tr_sw;y_tr_sw;`epochs pykw 20;`batch_size pykw 64;`validation_data pykw (.p.eval"tuple((xv,yv))")`;`callbacks pykw es;`verbose pykw 1]
+
  m:get_model[(WINDOWSIZE,INPSL);T2VDIM];
- }each til NUM_FOLDS
+ }each til NUM_FOLDS;
 
 
 
