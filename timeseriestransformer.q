@@ -82,10 +82,11 @@ trf:{
  ca:cols all_data;
  x_tr_sw:gensw[ft flip (trainlist x)ca;65];y_tr_sw:gensw[ft flip (ylist x) cols y;65];
  x_v_sw:gensw[ft flip (valtrainlist x)ca;65];y_v_sw:gensw[ft flip (valylist x) cols y;65];
- .p.set[`xv;x_v_sw];.p.set[`yv;y_v_sw;
+ .p.set[`xv;x_v_sw];.p.set[`yv;y_v_sw];
+ 
+ m:get_model[(WINDOWSIZE,INPSL);T2VDIM];
  m[`:fit;x_tr_sw;y_tr_sw;`epochs pykw 20;`batch_size pykw 64;`validation_data pykw (.p.eval"tuple((xv,yv))")`;`callbacks pykw es;`verbose pykw 1]
 
- m:get_model[(WINDOWSIZE,INPSL);T2VDIM];
  }each til NUM_FOLDS;
 
 
