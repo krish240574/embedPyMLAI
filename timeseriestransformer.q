@@ -38,6 +38,9 @@ all_data:all_data,'([]dayofyear:{1+x - `date $ 12 xbar `month $ x}all_data`date)
 all_data:delete row_id,date from all_data
 
 / Now to one-hot encode the categorical columns
+
+oh:"h"$ raze over 'flip {kt:train c1 x;flip kt in/: distinct kt}each til count c1:`country`store`product
+
 / this is a workaround so I can use pd.get_dummies() and get all data inside q, without entering the python world, per se
 pd:.p.import`pandas
 npar:.p.import[`numpy]`:array
