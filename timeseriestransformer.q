@@ -39,7 +39,9 @@ all_data:delete row_id,date from all_data
 
 / Now to one-hot encode the categorical columns
 
-oh:"h"$ raze over 'flip {kt:train c1 x;flip kt in/: distinct kt}each til count c1:`country`store`product
+/ oh:"h"$ raze over 'flip {kt:train c1 x;flip kt in/: distinct kt}each til count c1:`country`store`product
+/ c1:`country`store`product
+/ oh:"h"$ raze over 'flip flip each (kt in/: 'distinct each kt:train c1 til count c1)
 
 / this is a workaround so I can use pd.get_dummies() and get all data inside q, without entering the python world, per se
 pd:.p.import`pandas
@@ -55,6 +57,8 @@ kk:raze over 'flip {"h"$ ' ((npar each k) x)`}each til 3
 cc:count each {"h"$(((npar each k)x)`) 0}each til 3
 / Now to add column names for the categorical values, and we're good to go
 / form column string cat1, cat2, cat3, etc
+/ raze `$ raze each string each '(`$ raze each string c1,\:"_") ,/: 'dk
+
 cl:raze {`$(string (cols all_data) x),/: string til cc x}each til count cc
 all_data:all_data,'flip cl!flip kk
 
