@@ -57,6 +57,7 @@ kk:raze over 'flip {"h"$ ' ((npar each k) x)`}each til 3
 cc:count each {"h"$(((npar each k)x)`) 0}each til 3
 / Now to add column names for the categorical values, and we're good to go
 / form column string cat1, cat2, cat3, etc
+/ cs:`$raze over 'raze string c1,/:'dk:distinct each kt / small one liner to form column string
 / raze `$ raze each string each '(`$ raze each string c1,\:"_") ,/: 'dk
 
 cl:raze {`$(string (cols all_data) x),/: string til cc x}each til count cc
