@@ -55,8 +55,10 @@ TSETSZ:floor (count train)%NUM_FOLDS
 / this code mimics the TimeSeriesSplit in python - form NUM_FOLDS lists
 / cxl:count each xl:til each (TSETSZ*/:1+til NUM_FOLDS);fxl:(xl;cxl+\:til TSETSZ) - no stinking loops!
 f:{(til (x*TSETSZ);(x*TSETSZ)+til TSETSZ)}each 1+til NUM_FOLDS
-trainlist:(train f)[;0];valtrainlist:(train f)[;1]
-ylist:(y f)[;0];valylist:(y f)[;1]
+cxl:count each xl:til each (TSETSZ*/:1+til NUM_FOLDS);fxl:(xl;cxl+\:til TSETSZ);
+
+trainlist:train fxl[0;];valtrainlist:train fxl[1;];
+ylist:y fxl[0;];valylist:y fxl[1;];
 
 / Sliding window - window size = 65 for now. 
 / Generate indices and index in one shot
