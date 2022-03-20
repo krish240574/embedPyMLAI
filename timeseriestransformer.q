@@ -38,30 +38,11 @@ all_data:all_data,'([]dayofyear:{1+x - `date $ 12 xbar `month $ x}all_data`date)
 all_data:delete row_id,date from all_data
 
 / Now to one-hot encode the categorical columns
-
-/ oh:"h"$ raze over 'flip {kt:train c1 x;flip kt in/: distinct kt}each til count c1:`country`store`product
-/ c1:`country`store`product
-/ oh:"h"$ raze over 'flip flip each (kt in/: 'distinct each kt:train c1 til count c1)
-
-/ this is a workaround so I can use pd.get_dummies() and get all data inside q, without entering the python world, per se
-pd:.p.import`pandas
-npar:.p.import[`numpy]`:array
-
-tmp:flip all_data cols all_data
-/ only the first 3 columns need to be one-hot encoded
-k:{pd[`:get_dummies;string tmp[;x]]}each til 3
-/ k is a "foreign" object, can be converted to a np.array() in the python space
-/ the np.array is returned as rows of 0x, rows of bytes, convert them to int 
-kk:raze over 'flip {"h"$ ' ((npar each k) x)`}each til 3
-/ get count of distinct values of each categorical column
-cc:count each {"h"$(((npar each k)x)`) 0}each til 3
-/ Now to add column names for the categorical values, and we're good to go
-/ form column string cat1, cat2, cat3, etc
-/ cs:`$raze over 'raze string c1,/:'dk:distinct each kt / small one liner to form column string
-/ raze `$ raze each string each '(`$ raze each string c1,\:"_") ,/: 'dk
-
-cl:raze {`$(string (cols all_data) x),/: string til cc x}each til count cc
-all_data:all_data,'flip cl!flip kk
+/ one-hot one-liner
+oh:"h"$ raze over 'flip flip each (kt in/: 'distinct each kt:(train,test) c1 til count c1:`country`store`product)
+/ columns for one-hot table
+cs:`$raze over 'raze string c1,/:'dk:distinct each kt 
+all_data:all_data,'flip cs!flip oh
 
 / one-hot encoded table ready
 all_data:delete country, store, product from all_data
