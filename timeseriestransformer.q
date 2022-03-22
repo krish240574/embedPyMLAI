@@ -61,9 +61,9 @@ ylist:y fxl[0;];valylist:y fxl[1;];
 
 / Sliding window - window size = 65 for now. 
 / Generate indices and index in one shot
-gensw:{x (til (y+count x)) +\: til y}
-trsw:gensw[train;65]
-tstsw:gensw[test;65]
+gensw:{t:(til x) +\: til y;(t;last each t)}
+/ trsw:gensw[train;65]
+/ tstsw:gensw[test;65]
 smape:.p.get`smape;
 / training routine 
 ft:((.p.import`sklearn.preprocessing)`:RobustScaler)[][`:fit_transform;<]
@@ -71,8 +71,15 @@ es:(.p.import`keras.callbacks)[`:EarlyStopping;<;pykwargs `monitor`patience`verb
 
 trf:{
  ca:cols all_data;
- x_tr_sw:gensw[ft flip (trainlist x)ca;65];y_tr_sw:gensw[ft flip (ylist x) cols y;65];
- x_v_sw:gensw[ft flip (valtrainlist x)ca;65];y_v_sw:gensw[ft flip (valylist x) cols y;65];
+ tg:gensw[1+(count trx:ft flip (trainlist x)ca)-65;65];
+ x_tr_sw:trx tg 0;
+ y_tr_sw:(ft flip (ylist x) cols y)tg 1;
+ vg:gensw[1+(count vx:ft flip (valtrainlist x)ca)-65;65];
+ x_v_sw:vx vg 0;
+ y_v_sw:(ft flip (valylist x) cols y)vg 1
+
+ / x_tr_sw:gensw[ft flip (trainlist x)ca;65];y_tr_sw:gensw[ft flip (ylist x) cols y;65];
+ / x_v_sw:gensw[ft flip (valtrainlist x)ca;65];y_v_sw:gensw[ft flip (valylist x) cols y;65];
  .p.set[`xv;x_v_sw];.p.set[`yv;y_v_sw];
  
  m:get_model[(WINDOWSIZE,INPSL);T2VDIM];
