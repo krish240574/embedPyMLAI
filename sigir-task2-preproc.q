@@ -50,7 +50,7 @@ strain:strain,'([]impression_size:count each strain`product_skus_hash)
 / first, clicked_skus_hash has too many repetitions of clicked_skus_hashes, replace with distinct values
 clicked:strain`clicked_skus_hash
 f:where raze not  {"" in x}each clicked / find non-zero sized lists
-strain:((delete clicked_skus_hash from strain),'([]clicked_skus_hash:@[clicked;f;:;{distinct x}each clicked f]))
+strain:((delete clicked_skus_hash from strain),'([]clicked_skus_hash:@[clicked;f;:;distinct each clicked f]))
 / Add clicked_size to the main table
 (strain`clicked_size):@[(count strain)#0;f;:;count each clicked f]
  
