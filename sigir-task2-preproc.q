@@ -52,7 +52,7 @@ clicked:strain`clicked_skus_hash
 f:where raze not  {"" in x}each clicked / find non-zero sized lists
 strain:((delete clicked_skus_hash from strain),'([]clicked_skus_hash:@[clicked;f;:;{distinct x}each clicked f]))
 / Add clicked_size to the main table
-(strain`clicked_size):@[(count strain)#0;f;:;count each kk f]
+(strain`clicked_size):@[(count strain)#0;f;:;count each clicked f]
  
 / Update list of impressions by the clicked item when it is missing - union of product_skus_hash and clicked_skus_hash
 
