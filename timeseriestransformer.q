@@ -68,7 +68,7 @@ smape:.p.get`smape;
 / training routine 
 ft:((.p.import`sklearn.preprocessing)`:RobustScaler)[][`:fit_transform;<]
 es:(.p.import`keras.callbacks)[`:EarlyStopping;<;pykwargs `monitor`patience`verbose`mode`restore_best_weights!(smape;700;0;"min";`True)]
-
+na:(.p.import`numpy)`:array;
 trf:{
  ca:cols all_data;
  tg:gensw[1+(count trx:ft flip (trainlist x)ca)-65;65];
@@ -80,11 +80,11 @@ trf:{
 
  / x_tr_sw:gensw[ft flip (trainlist x)ca;65];y_tr_sw:gensw[ft flip (ylist x) cols y;65];
  / x_v_sw:gensw[ft flip (valtrainlist x)ca;65];y_v_sw:gensw[ft flip (valylist x) cols y;65];
- .p.set[`xv;x_v_sw];.p.set[`yv;y_v_sw];
+ .p.set[`xv;na x_v_sw];.p.set[`yv;na y_v_sw];
  
  m:get_model[(WINDOWSIZE,INPSL);T2VDIM];
- m[`:fit;x_tr_sw;y_tr_sw;`epochs pykw 20;`batch_size pykw 64;`validation_data pykw (.p.eval"tuple((xv,yv))")`;`callbacks pykw es;`verbose pykw 1]
-
+ m[`:fit;na x_tr_sw;na y_tr_sw;`epochs pykw 20;`batch_size pykw 64;`validation_data pykw (.p.eval"tuple((xv,yv))")`;`callbacks pykw es;`verbose pykw 1]
+/// Might need to change TF version to 2.6.0 - I keep getting a "Nonetype is not callable" error
  }each til NUM_FOLDS;
 
 
